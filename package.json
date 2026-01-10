@@ -4,19 +4,60 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "cd ../../ && yarn build to-image-service",
+    "pub": "cd ../../ && yarn pub to-image-service",
+    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service",
+    "test": "node test/test.js"
+  },
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "assets/noto-sans-v27-latin-regular.ttf"
   ],
+  "contributors": [
+    "pgnqukezrdxmhjso"
+  ],
+  "homepage": "https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service",
+  "bugs": {
+    "url": "https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service.git"
+  },
   "license": "MIT",
-  "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "Image",
+    "renderer",
+    "svg"
   ],
-  "devDependencies": {},
   "peerDependencies": {
     "koishi": "^4.18.10"
+  },
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.3-alpha.2",
+    "canvg": "^4.0.3",
+    "html-react-parser": "^5.2.11",
+    "jsdom": "26.1.0",
+    "react": "^19.3.0-canary-fd524fe0-20251121",
+    "satori": "^0.16.2",
+    "skia-canvas": "^3.0.8",
+    "sucrase": "^3.35.1",
+    "wasm-vips": "^0.0.16"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^27",
+    "@types/react": "^19"
+  },
+  "koishi": {
+    "service": {
+      "implements": [
+        "toImageService"
+      ]
+    }
   }
 }
