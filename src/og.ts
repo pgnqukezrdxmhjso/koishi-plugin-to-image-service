@@ -4,7 +4,7 @@ import type Satori from "satori";
 import type { SatoriOptions } from "satori";
 import type { ReactElement } from "react";
 
-export type SvgOptions = {
+export type VercelSatoriOptions = {
   /**
    * The width of the image.
    *
@@ -40,8 +40,7 @@ export type SvgOptions = {
   emoji?: EmojiType;
 };
 
-export type Font = SvgOptions["fonts"][number];
-export type Logger = (msg: string) => void;
+export type Font = VercelSatoriOptions["fonts"][number];
 
 async function loadGoogleFont(font: string, text: string) {
   if (!font || !text) return;
@@ -128,7 +127,7 @@ const loadDynamicAsset = ({ emoji }: { emoji?: EmojiType }) => {
 
 export async function renderSvg(
   satori: typeof Satori,
-  options: SvgOptions,
+  options: VercelSatoriOptions,
   defaultFonts: Font[],
   element: ReactElement<any, any>,
 ) {

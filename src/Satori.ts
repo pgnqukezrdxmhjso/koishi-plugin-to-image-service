@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import type Satori from "satori";
 
 import { ReactElement } from "react";
-import { Font, SvgOptions, renderSvg as _renderSvg } from "./og";
+import { Font, VercelSatoriOptions, renderSvg as _renderSvg } from "./og";
 
 let fontData: Buffer<ArrayBufferLike>;
 let satori: typeof Satori;
@@ -28,7 +28,11 @@ const getDefaultFonts = () =>
 
 export const renderSvg = async (
   element: ReactElement<any, any>,
-  options: SvgOptions,
+  options: VercelSatoriOptions,
 ) => {
   return _renderSvg(satori, options, getDefaultFonts(), element);
 };
+
+export function getSatori() {
+  return satori;
+}

@@ -60,7 +60,8 @@ const code =
 (async () => {
   const toImageService = new ToImageService({} as any, {});
   await toImageService.start();
-  const reactElement = await toImageService.jsxToReactElement(code);
-  const svg = await toImageService.reactElementToSvg(reactElement);
+  const reactElement =
+    await toImageService.toReactElement.jsxToReactElement(code);
+  const svg = await toImageService.reactElementToSvg.satori(reactElement);
   await fs.writeFile("./test.svg", svg);
 })();

@@ -2,6 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-to-image-service?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-to-image-service)
 
+Generate images using a non-puppeteer solution
+
 ---
 
 ### to svg

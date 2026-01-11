@@ -1,20 +1,15 @@
 import { Context, Schema, Service } from "koishi";
-import type { ReactElement } from "react";
 
-import { Readable } from "stream";
-import { initSatori, renderSvg } from "./Satori";
+import { initToImage, svgToImage, toImageBase } from "./toImage";
 import {
-  initImage,
-  getResvg,
-  getVips,
-  getSkiaCanvas,
-  svgToImage,
-  ToImageOptions,
-} from "./toImage";
-import { htmlToReactElement, jsxToReactElement } from "./toReactElement";
+  initToSvg,
+  reactElementToSvg,
+  toReactElement,
+  toSvgBase,
+} from "./toSvg";
 
-import { Font, SvgOptions } from "./og";
-export { Font, SvgOptions } from "./og";
+import { Font, VercelSatoriOptions } from "./og";
+export { Font, VercelSatoriOptions } from "./og";
 
 const serviceName = "toImageService";
 
@@ -41,8 +36,8 @@ class ToImageService extends Service {
     if (initialized) {
       return;
     }
-    await initSatori();
-    await initImage();
+    await initToSvg(this.fonts);
+    await initToImage();
     initialized = true;
   }
 
@@ -63,78 +58,27 @@ class ToImageService extends Service {
     });
   }
 
-  getResvg() {
-    return getResvg();
+  toSvgBase = toSvgBase;
+  reactElementToSvg = reactElementToSvg;
+  toReactElement = toReactElement;
+
+  toImageBase = toImageBase;
+  svgToImage = svgToImage;
+
+  async htmlToImage(htmlCode: string, satoriOptions?: VercelSatoriOptions) {
+    const reactElement = toReactElement.htmlToReactElement(htmlCode);
+    const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
+    return await svgToImage.resvg(svg);
   }
 
-  getVips() {
-    return getVips();
-  }
-
-  getSkiaCanvas() {
-    return getSkiaCanvas();
-  }
-
-  async reactElementToSvg(
-    reactElement: ReactElement<any, any>,
-    options?: SvgOptions,
-  ): Promise<string> {
-    options ||= {};
-    if (this.fonts.length > 0) {
-      options.fonts ||= [];
-      options.fonts.push(...this.fonts);
-    }
-    return renderSvg(reactElement, options);
-  }
-
-  async svgToImage(svg: string, options: ToImageOptions) {
-    return svgToImage(svg, options);
-  }
-
-  async reactElementToImage(args: {
-    reactElement: ReactElement<any, any>;
-    svgOptions?: SvgOptions;
-    toImageOptions: ToImageOptions;
-  }): Promise<Readable> {
-    const svg = await this.reactElementToSvg(
-      args.reactElement,
-      args.svgOptions,
-    );
-    const img = await this.svgToImage(svg, args.toImageOptions);
-    return Readable.from(Buffer.from(img));
-  }
-
-  async jsxToReactElement(jsxCode: string, data?: Record<any, any>) {
-    return jsxToReactElement(jsxCode, data);
-  }
-
-  htmlToReactElement(htmlCode: string) {
-    return htmlToReactElement(htmlCode);
-  }
-
-  async jsxToImage(args: {
-    jsxCode: string;
-    data?: Record<any, any>;
-    toImageOptions: ToImageOptions;
-    svgOptions?: SvgOptions;
-  }): Promise<Readable> {
-    return this.reactElementToImage({
-      reactElement: await this.jsxToReactElement(args.jsxCode, args.data),
-      toImageOptions: args.toImageOptions,
-      svgOptions: args.svgOptions,
-    });
-  }
-
-  htmlToImage(args: {
-    htmlCode: string;
-    toImageOptions: ToImageOptions;
-    svgOptions?: SvgOptions;
-  }): Promise<Readable> {
-    return this.reactElementToImage({
-      reactElement: this.htmlToReactElement(args.htmlCode),
-      toImageOptions: args.toImageOptions,
-      svgOptions: args.svgOptions,
-    });
+  async jsxToImage(
+    jsxCode: string,
+    data?: Record<any, any>,
+    satoriOptions?: VercelSatoriOptions,
+  ) {
+    const reactElement = await toReactElement.jsxToReactElement(jsxCode, data);
+    const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
+    return await svgToImage.resvg(svg);
   }
 }
 namespace ToImageService {
