@@ -2,14 +2,13 @@ import { transform } from "sucrase";
 import React, { ReactElement } from "react";
 import HtmlReactParser from "html-react-parser";
 import { initSatori, getSatori, renderSvg } from "./Satori";
-import { Font, VercelSatoriOptions } from "./og";
+import { VercelSatoriOptions } from "./og";
+import fontManagement from "./fontManagement";
 
 const AsyncFunction: FunctionConstructor = (async () => 0)
   .constructor as FunctionConstructor;
 
-let fonts: Font[] = [];
-export async function initToSvg(_fonts: Font[]) {
-  fonts = _fonts;
+export async function initToSvg() {
   await initSatori();
 }
 
@@ -18,8 +17,12 @@ export const toSvgBase = {
 };
 
 export const reactElementToSvg = {
-  async satori(reactElement: ReactElement<any, any>, options?: VercelSatoriOptions) {
+  async satori(
+    reactElement: ReactElement<any, any>,
+    options?: VercelSatoriOptions,
+  ) {
     options ||= {};
+    const fonts = fontManagement.getFonts("satori");
     if (fonts.length > 0) {
       options.fonts ||= [];
       options.fonts.push(...fonts);

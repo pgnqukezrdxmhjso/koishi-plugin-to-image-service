@@ -1,5 +1,6 @@
 import { Context, Schema, Service } from "koishi";
 
+import fontManagement, { Font } from "./fontManagement";
 import { initToImage, svgToImage, toImageBase } from "./toImage";
 import {
   initToSvg,
@@ -7,9 +8,11 @@ import {
   toReactElement,
   toSvgBase,
 } from "./toSvg";
+import { VercelSatoriOptions } from "./og";
 
-import { Font, VercelSatoriOptions } from "./og";
-export { Font, VercelSatoriOptions } from "./og";
+export { VercelSatoriOptions } from "./og";
+export { VipsOptions, ResvgOptions, SkiaCanvasOptions } from "./toImage";
+export { Font, FontWeight, FontStyle, FontSupport } from "./fontManagement";
 
 const serviceName = "toImageService";
 
@@ -24,7 +27,6 @@ let initialized = false;
 class ToImageService extends Service {
   private _ctx: Context;
   private _config: ToImageService.Config;
-  private fonts: Font[] = [];
 
   constructor(ctx: Context, config: ToImageService.Config) {
     super(ctx, serviceName);
@@ -36,26 +38,20 @@ class ToImageService extends Service {
     if (initialized) {
       return;
     }
-    await initToSvg(this.fonts);
+    await initToSvg();
     await initToImage();
     initialized = true;
   }
 
   addFont(fonts: Font[]) {
-    this.fonts.push(...fonts);
+    fontManagement.addFont(fonts);
     this.ctx.on("dispose", () => {
-      this.removeFont(fonts);
+      fontManagement.removeFont(fonts);
     });
   }
 
   removeFont(fonts: Font[]) {
-    fonts.forEach((font) => {
-      const index = this.fonts.indexOf(font);
-      if (index === -1) {
-        return;
-      }
-      this.fonts.splice(index, 1);
-    });
+    fontManagement.removeFont(fonts);
   }
 
   toSvgBase = toSvgBase;
