@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 export type FontStyle = "normal" | "italic";
 export type FontFormat = "ttf" | "otf" | "woff";
@@ -11,21 +13,37 @@ export interface Font {
   filePath: string;
 }
 
-const fontPool: Font[] = [];
+const fontPool: Record<string, Font> = {};
+function toHash(font: Font) {
+  let data = font.data;
+  if (data instanceof ArrayBuffer) {
+    data = Buffer.from(data);
+  }
+  return crypto.createHash("sha256").update(data).digest("hex");
+}
 export default {
   addFont(fonts: Font[]) {
-    fontPool.push(...fonts);
+    (async () => {
+      for (const font of fonts) {
+        fontPool[toHash(font)] = font;
+      }
+    })();
   },
   removeFont(fonts: Font[]) {
-    fonts.forEach((font) => {
-      const index = fontPool.indexOf(font);
-      if (index === -1) {
-        return;
+    (async () => {
+      for (const font of fonts) {
+        delete fontPool[toHash(font)];
       }
-      fontPool.splice(index, 1);
-    });
+    })();
   },
   getFonts(formats: FontFormat[]) {
-    return fontPool.filter((font) => formats.includes(font.format));
+    const fonts: Font[] = [];
+    for (const hash in fontPool) {
+      const font = fontPool[hash];
+      if (formats.includes(font.format)) {
+        fonts.push(font);
+      }
+    }
+    return fonts;
   },
 };
