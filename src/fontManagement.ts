@@ -1,13 +1,14 @@
 export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 export type FontStyle = "normal" | "italic";
-export type FontSupport = "satori";
+export type FontFormat = "ttf" | "otf" | "woff";
 export interface Font {
   data: Buffer | ArrayBuffer;
   name: string;
   weight?: FontWeight;
   style?: FontStyle;
   lang?: string;
-  supports: FontSupport[];
+  format: FontFormat;
+  filePath: string;
 }
 
 const fontPool: Font[] = [];
@@ -24,7 +25,7 @@ export default {
       fontPool.splice(index, 1);
     });
   },
-  getFonts(support: FontSupport) {
-    return fontPool.filter((font) => font.supports.includes(support));
+  getFonts(formats: FontFormat[]) {
+    return fontPool.filter((font) => formats.includes(font.format));
   },
 };

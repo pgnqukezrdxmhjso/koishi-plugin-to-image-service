@@ -3,7 +3,7 @@ import React, { ReactElement } from "react";
 import HtmlReactParser from "html-react-parser";
 import { initSatori, getSatori, renderSvg } from "./Satori";
 import { VercelSatoriOptions } from "./og";
-import fontManagement from "./fontManagement";
+import fontManagement, { FontFormat } from "./fontManagement";
 
 const AsyncFunction: FunctionConstructor = (async () => 0)
   .constructor as FunctionConstructor;
@@ -16,13 +16,14 @@ export const toSvgBase = {
   getSatori,
 };
 
+const fontFormats: FontFormat[] = ["ttf", "otf", "woff"];
 export const reactElementToSvg = {
   async satori(
     reactElement: ReactElement<any, any>,
     options?: VercelSatoriOptions,
   ) {
     options ||= {};
-    const fonts = fontManagement.getFonts("satori");
+    const fonts = fontManagement.getFonts(fontFormats);
     if (fonts.length > 0) {
       options.fonts ||= [];
       options.fonts.push(...fonts);

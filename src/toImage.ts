@@ -89,20 +89,25 @@ export const toImageBase = {
 
 export const svgToImage = {
   async resvg(svg: string, options?: ResvgOptions): Promise<Uint8Array> {
-    const resvgJS = new Resvg.Resvg(svg, options?.options);
-    const imgData = resvgJS.render();
-    const imgBuffer = imgData.asPng();
-    imgData.free();
-    resvgJS.free();
-    return imgBuffer;
+    const resvg = new Resvg.Resvg(svg, options?.options);
+    let imgData: ReturnType<typeof resvg.render>;
+    try {
+      imgData = resvg.render();
+      return imgData.asPng();
+    } finally {
+      imgData?.free();
+      resvg.free();
+    }
   },
   async vips(svg: string, options: VipsOptions): Promise<Uint8Array> {
     const img = vips.Image.svgloadBuffer(Buffer.from(svg), {
       unlimited: true,
     });
-    const imgBuffer = img[options.format + "saveBuffer"](options.options || {});
-    img.delete();
-    return imgBuffer;
+    try {
+      return img[options.format + "saveBuffer"](options.options || {});
+    }finally {
+      img.delete();
+    }
   },
   async skiaCanvas(
     svg: string,

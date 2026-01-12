@@ -12,7 +12,7 @@ import { VercelSatoriOptions } from "./og";
 
 export { VercelSatoriOptions } from "./og";
 export { VipsOptions, ResvgOptions, SkiaCanvasOptions } from "./toImage";
-export { Font, FontWeight, FontStyle, FontSupport } from "./fontManagement";
+export { Font, FontWeight, FontStyle, FontFormat } from "./fontManagement";
 
 const serviceName = "toImageService";
 
