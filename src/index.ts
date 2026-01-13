@@ -9,6 +9,8 @@ import {
   toSvgBase,
 } from "./toSvg";
 import { VercelSatoriOptions } from "./og";
+import fs from "node:fs";
+import path from "node:path";
 
 export { VercelSatoriOptions } from "./og";
 export { VipsOptions, ResvgOptions, SkiaCanvasOptions } from "./toImage";
@@ -77,20 +79,12 @@ class ToImageService extends Service {
     return await svgToImage.resvg(svg);
   }
 }
+const readme = fs
+  .readFileSync(path.join(__dirname, "../readme.md"))
+  .toString()
+  .replace(/^[\s\S]*# VersionHistory/, "");
 namespace ToImageService {
-  export const usage =
-    "to svg<br/>" +
-    'html to ReactElement <a target="_blank" href="https://www.npmjs.com/package/html-react-parser">html-react-parser</a><br/>' +
-    'jsx to ReactElement <a target="_blank" href="https://www.npmjs.com/package/sucrase">sucrase</a><br/>' +
-    'ReactElement to svg <a target="_blank" href="https://github.com/vercel/satori#overview">vercel/satori</a> ' +
-    '<a target="_blank" href="https://og-playground.vercel.app/">og-playground</a><br/>' +
-    "<hr/>" +
-    "to png<br/>" +
-    '<a target="_blank" href="https://www.npmjs.com/package/@resvg/resvg-wasm">@resvg/resvg-wasm</a><br/>' +
-    '<a target="_blank" href="https://www.npmjs.com/package/wasm-vips">wasm-vips</a><br/>' +
-    '<a target="_blank" href="https://www.npmjs.com/package/skia-canvas">skia-canvas</a> ' +
-    '<a target="_blank" href="https://www.npmjs.com/package/canvg">canvg</a> ' +
-    '<a target="_blank" href="https://www.npmjs.com/package/jsdom">jsdom</a><br/>';
+  export const usage = readme;
 
   export interface Config {}
   export const Config: Schema<Config> = Schema.object({});

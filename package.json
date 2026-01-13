@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -30,20 +30,22 @@
     "chatbot",
     "koishi",
     "plugin",
-    "Image",
+    "to image",
     "renderer",
-    "svg"
+    "satori",
+    "html to image",
+    "jsx to image"
   ],
   "peerDependencies": {
     "koishi": "^4.18.10"
   },
   "dependencies": {
-    "@resvg/resvg-wasm": "^2.6.3-alpha.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "canvg": "^4.0.3",
     "html-react-parser": "^5.2.11",
     "jsdom": "26.1.0",
-    "react": "^19.3.0-canary-fd524fe0-20251121",
-    "satori": "^0.16.2",
+    "react": "^19.2.3",
+    "satori": "^0.18.3",
     "skia-canvas": "^3.0.8",
     "sucrase": "^3.35.1",
     "wasm-vips": "^0.0.16"
