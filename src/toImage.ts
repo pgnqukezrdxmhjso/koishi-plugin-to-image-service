@@ -4,8 +4,7 @@ import { createRequire } from "node:module";
 
 import { Context } from "koishi";
 
-import type SkiaCanvas from "skia-canvas";
-import type { ExportFormat, ExportOptions } from "skia-canvas";
+import SkiaCanvas, { AvifConfig } from "@napi-rs/canvas";
 import { Canvg } from "canvg";
 import { JSDOM } from "jsdom";
 import Vips from "wasm-vips";
@@ -54,25 +53,22 @@ export type VipsOptions =
       options?: Parameters<Vips.Image["rawsaveBuffer"]>[0];
     };
 
-export interface SkiaCanvasOptions {
-  format: ExportFormat;
-  options?: ExportOptions;
-}
+const skiaCanvasName = "@napi-rs/canvas";
 
 let vips: typeof Vips;
 let skiaCanvas: typeof SkiaCanvas;
 export async function initToImage(ctx: Context) {
-  const packageJson = JSON.parse(
-    await fs.readFile(path.resolve(__dirname, "../package.json"), "utf8"),
-  );
-  await ctx.node.install(
-    "skia-canvas",
-    (packageJson?.devDependencies?.["skia-canvas"] as string)?.replace(
-      /[^\d.]/,
-      "",
-    ),
-  );
-  skiaCanvas = await ctx.node.safeImport("skia-canvas");
+  // const packageJson = JSON.parse(
+  //   await fs.readFile(path.resolve(__dirname, "../package.json"), "utf8"),
+  // );
+  // await ctx.node.install(
+  //   skiaCanvasName,
+  //   (packageJson?.devDependencies?.[skiaCanvasName] as string)?.replace(
+  //     /[^\d.]/,
+  //     "",
+  //   ),
+  // );
+  skiaCanvas = await ctx.node.safeImport(skiaCanvasName);
 
   vips = await Vips({
     dynamicLibraries: ["vips-resvg.wasm", "vips-jxl.wasm", "vips-heif.wasm"],
@@ -104,7 +100,7 @@ export const toImageBase = {
   },
 };
 
-export const svgToImage = {
+export class SvgToImage {
   async resvg(svg: string, options?: ResvgOptions): Promise<Uint8Array> {
     const resvg = new Resvg.Resvg(svg, options?.options);
     let imgData: ReturnType<typeof resvg.render>;
@@ -115,7 +111,8 @@ export const svgToImage = {
       imgData?.free();
       resvg.free();
     }
-  },
+  }
+
   async vips(svg: string, options: VipsOptions): Promise<Uint8Array> {
     const img = vips.Image.svgloadBuffer(Buffer.from(svg), {
       unlimited: true,
@@ -125,20 +122,52 @@ export const svgToImage = {
     } finally {
       img.delete();
     }
-  },
+  }
+
+  skiaCanvas(
+    svg: string,
+    format: "webp" | "jpeg",
+    quality?: number,
+  ): Promise<Uint8Array>;
+  skiaCanvas(svg: string, format: "png"): Promise<Uint8Array>;
+  skiaCanvas(
+    svg: string,
+    format: "avif",
+    cfg?: AvifConfig,
+  ): Promise<Uint8Array>;
+  skiaCanvas(svg: string, format: "gif", quality?: number): Promise<Uint8Array>;
   async skiaCanvas(
     svg: string,
-    options: SkiaCanvasOptions,
+    format: string,
+    options?: any,
   ): Promise<Uint8Array> {
     const img = await skiaCanvas.loadImage(Buffer.from(svg));
     const canvas = new skiaCanvas.Canvas(img.width, img.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0);
-    return await canvas.toBuffer(options.format, options.options);
-  },
+    return await canvas.encode(format as any, options);
+  }
+
+  skiaCanvasCanvg(
+    svg: string,
+    format: "webp" | "jpeg",
+    quality?: number,
+  ): Promise<Uint8Array>;
+  skiaCanvasCanvg(svg: string, format: "png"): Promise<Uint8Array>;
+  skiaCanvasCanvg(
+    svg: string,
+    format: "avif",
+    cfg?: AvifConfig,
+  ): Promise<Uint8Array>;
+  skiaCanvasCanvg(
+    svg: string,
+    format: "gif",
+    quality?: number,
+  ): Promise<Uint8Array>;
   async skiaCanvasCanvg(
     svg: string,
-    options: SkiaCanvasOptions,
+    format: string,
+    options?: any,
   ): Promise<Uint8Array> {
     const canvas = new skiaCanvas.Canvas(1, 1);
     const ctx = canvas.getContext("2d");
@@ -151,6 +180,6 @@ export const svgToImage = {
       ignoreDimensions: false,
     });
     await v.render();
-    return canvas.toBuffer(options.format, options.options);
-  },
-};
+    return await canvas.encode(format as any, options);
+  }
+}

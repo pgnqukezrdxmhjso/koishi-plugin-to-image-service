@@ -6,11 +6,15 @@ Generate images using a non-puppeteer solution
 
 ---
 
-### to svg
+### to ReactElement
 
 html to ReactElement [html-react-parser](https://www.npmjs.com/package/html-react-parser)
 
 jsx to ReactElement [sucrase](https://www.npmjs.com/package/sucrase)
+
+---
+
+### to svg
 
 ReactElement to svg [vercel/satori](https://github.com/vercel/satori#overview)
 [og-playground](https://og-playground.vercel.app/)
@@ -23,6 +27,6 @@ ReactElement to svg [vercel/satori](https://github.com/vercel/satori#overview)
 
 [wasm-vips](https://www.npmjs.com/package/wasm-vips)
 
-[skia-canvas](https://www.npmjs.com/package/skia-canvas)
+[@napi-rs/canvas](https://www.npmjs.com/package/@napi-rs/canvas)
 [canvg](https://www.npmjs.com/package/canvg)
 [jsdom](https://www.npmjs.com/package/jsdom)

@@ -1,22 +1,24 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import { Context, Schema, Service } from "koishi";
 // noinspection ES6UnusedImports
 import {} from "koishi-plugin-w-node";
 
 import fontManagement, { Font } from "./fontManagement";
-import { initToImage, svgToImage, toImageBase } from "./toImage";
+import { toReactElement } from "./toReactElement";
 import {
   initToSvg,
   reactElementToSvg,
-  toReactElement,
   toSvgBase,
 } from "./toSvg";
+import { initToImage, SvgToImage, toImageBase } from "./toImage";
 import { VercelSatoriOptions } from "./og";
-import fs from "node:fs";
-import path from "node:path";
 
-export { VercelSatoriOptions } from "./og";
-export { VipsOptions, ResvgOptions, SkiaCanvasOptions } from "./toImage";
+
 export { Font, FontWeight, FontStyle, FontFormat } from "./fontManagement";
+export { VercelSatoriOptions } from "./og";
+export { VipsOptions, ResvgOptions } from "./toImage";
 
 const serviceName = "toImageService";
 
@@ -63,12 +65,12 @@ class ToImageService extends Service {
   toReactElement = toReactElement;
 
   toImageBase = toImageBase;
-  svgToImage = svgToImage;
+  svgToImage = new SvgToImage();
 
   async htmlToImage(htmlCode: string, satoriOptions?: VercelSatoriOptions) {
     const reactElement = toReactElement.htmlToReactElement(htmlCode);
     const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
-    return await svgToImage.resvg(svg);
+    return await this.svgToImage.resvg(svg);
   }
 
   async jsxToImage(
@@ -78,7 +80,7 @@ class ToImageService extends Service {
   ) {
     const reactElement = await toReactElement.jsxToReactElement(jsxCode, data);
     const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
-    return await svgToImage.resvg(svg);
+    return await this.svgToImage.resvg(svg);
   }
 }
 const readme = fs
