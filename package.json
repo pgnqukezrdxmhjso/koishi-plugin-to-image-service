@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -46,16 +46,20 @@
     "jsdom": "26.1.0",
     "react": "^19.2.3",
     "satori": "^0.18.3",
-    "skia-canvas": "^3.0.8",
     "sucrase": "^3.35.1",
     "wasm-vips": "^0.0.16"
   },
   "devDependencies": {
     "@types/jsdom": "^27",
-    "@types/react": "^19"
+    "@types/react": "^19",
+    "koishi-plugin-w-node": "^0.2.2",
+    "skia-canvas": "^3.0.8"
   },
   "koishi": {
     "service": {
+      "required": [
+        "node"
+      ],
       "implements": [
         "toImageService"
       ]

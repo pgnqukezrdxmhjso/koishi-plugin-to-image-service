@@ -1,4 +1,6 @@
 import { Context, Schema, Service } from "koishi";
+// noinspection ES6UnusedImports
+import {} from "koishi-plugin-w-node";
 
 import fontManagement, { Font } from "./fontManagement";
 import { initToImage, svgToImage, toImageBase } from "./toImage";
@@ -41,7 +43,7 @@ class ToImageService extends Service {
       return;
     }
     await initToSvg();
-    await initToImage();
+    await initToImage(this._ctx);
     initialized = true;
   }
 
@@ -85,6 +87,8 @@ const readme = fs
   .replace(/^[\s\S]*# VersionHistory/, "");
 namespace ToImageService {
   export const usage = readme;
+
+  export const inject = ["node"];
 
   export interface Config {}
   export const Config: Schema<Config> = Schema.object({});

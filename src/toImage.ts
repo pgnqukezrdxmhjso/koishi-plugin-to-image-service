@@ -1,11 +1,15 @@
-import SkiaCanvas, { ExportFormat, ExportOptions } from "skia-canvas";
+import path from "node:path";
+import fs from "node:fs/promises";
+import { createRequire } from "node:module";
+
+import { Context } from "koishi";
+
+import type SkiaCanvas from "skia-canvas";
+import type { ExportFormat, ExportOptions } from "skia-canvas";
 import { Canvg } from "canvg";
 import { JSDOM } from "jsdom";
 import Vips from "wasm-vips";
 import * as Resvg from "@resvg/resvg-wasm";
-import { createRequire } from "node:module";
-import path from "node:path";
-import fs from "node:fs/promises";
 
 export interface ResvgOptions {
   format?: "png";
@@ -56,7 +60,20 @@ export interface SkiaCanvasOptions {
 }
 
 let vips: typeof Vips;
-export async function initToImage() {
+let skiaCanvas: typeof SkiaCanvas;
+export async function initToImage(ctx: Context) {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.resolve(__dirname, "../package.json"), "utf8"),
+  );
+  await ctx.node.install(
+    "skia-canvas",
+    (packageJson?.devDependencies?.["skia-canvas"] as string)?.replace(
+      /[^\d.]/,
+      "",
+    ),
+  );
+  skiaCanvas = await ctx.node.safeImport("skia-canvas");
+
   vips = await Vips({
     dynamicLibraries: ["vips-resvg.wasm", "vips-jxl.wasm", "vips-heif.wasm"],
   });
@@ -83,7 +100,7 @@ export const toImageBase = {
     return vips;
   },
   getSkiaCanvas() {
-    return SkiaCanvas;
+    return skiaCanvas;
   },
 };
 
@@ -105,7 +122,7 @@ export const svgToImage = {
     });
     try {
       return img[options.format + "saveBuffer"](options.options || {});
-    }finally {
+    } finally {
       img.delete();
     }
   },
@@ -113,8 +130,8 @@ export const svgToImage = {
     svg: string,
     options: SkiaCanvasOptions,
   ): Promise<Uint8Array> {
-    const img = await SkiaCanvas.loadImage(Buffer.from(svg));
-    const canvas = new SkiaCanvas.Canvas(img.width, img.height);
+    const img = await skiaCanvas.loadImage(Buffer.from(svg));
+    const canvas = new skiaCanvas.Canvas(img.width, img.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0);
     return await canvas.toBuffer(options.format, options.options);
@@ -123,14 +140,14 @@ export const svgToImage = {
     svg: string,
     options: SkiaCanvasOptions,
   ): Promise<Uint8Array> {
-    const canvas = new SkiaCanvas.Canvas(1, 1);
+    const canvas = new skiaCanvas.Canvas(1, 1);
     const ctx = canvas.getContext("2d");
     const dom = new JSDOM();
     const v = Canvg.fromString(ctx as any, svg, {
       window: dom.window as any,
       DOMParser: dom.window.DOMParser as any,
-      createCanvas: (w, h) => new SkiaCanvas.Canvas(w, h) as any,
-      createImage: SkiaCanvas.Image as any,
+      createCanvas: (w, h) => new skiaCanvas.Canvas(w, h) as any,
+      createImage: skiaCanvas.Image as any,
       ignoreDimensions: false,
     });
     await v.render();
