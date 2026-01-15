@@ -4,7 +4,7 @@ export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 export type FontStyle = "normal" | "italic";
 export type FontFormat = "ttf" | "otf" | "woff";
 export interface Font {
-  data: Buffer | ArrayBuffer;
+  data: Buffer;
   name: string;
   weight?: FontWeight;
   style?: FontStyle;

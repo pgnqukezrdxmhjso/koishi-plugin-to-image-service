@@ -7,14 +7,9 @@ import {} from "koishi-plugin-w-node";
 
 import fontManagement, { Font } from "./fontManagement";
 import { toReactElement } from "./toReactElement";
-import {
-  initToSvg,
-  reactElementToSvg,
-  toSvgBase,
-} from "./toSvg";
+import { initToSvg, reactElementToSvg, toSvgBase } from "./toSvg";
 import { initToImage, SvgToImage, toImageBase } from "./toImage";
 import { VercelSatoriOptions } from "./og";
-
 
 export { Font, FontWeight, FontStyle, FontFormat } from "./fontManagement";
 export { VercelSatoriOptions } from "./og";
@@ -60,6 +55,8 @@ class ToImageService extends Service {
     fontManagement.removeFont(fonts);
   }
 
+  fontManagement = fontManagement;
+
   toSvgBase = toSvgBase;
   reactElementToSvg = reactElementToSvg;
   toReactElement = toReactElement;
@@ -83,10 +80,7 @@ class ToImageService extends Service {
     return await this.svgToImage.resvg(svg);
   }
 }
-const readme = fs
-  .readFileSync(path.join(__dirname, "../readme.md"))
-  .toString()
-  .replace(/^[\s\S]*# VersionHistory/, "");
+const readme = fs.readFileSync(path.join(__dirname, "../readme.md"), "utf8");
 namespace ToImageService {
   export const usage = readme;
 
