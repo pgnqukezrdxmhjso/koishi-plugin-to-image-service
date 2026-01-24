@@ -2,18 +2,24 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { Context, Schema, Service } from "koishi";
+import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 // noinspection ES6UnusedImports
 import {} from "koishi-plugin-w-node";
 
-import fontManagement, { Font } from "./fontManagement";
 import { toReactElement } from "./toReactElement";
-import { initToSvg, reactElementToSvg, toSvgBase } from "./toSvg";
-import { initToImage, SvgToImage, toImageBase } from "./toImage";
-import { VercelSatoriOptions } from "./og";
+import { FontManagement } from "./fontManagement";
+import { SatoriRenderer } from "./toSvg";
+import {
+  SkiaCanvasRenderer,
+  SharpRenderer,
+  ResvgRenderer,
+  TakumiRenderer,
+} from "./toImage";
+import type * as TakumiType from "@takumi-rs/core";
 
-export { Font, FontWeight, FontStyle, FontFormat } from "./fontManagement";
-export { VercelSatoriOptions } from "./og";
-export { VipsOptions, ResvgOptions } from "./toImage";
+export type * from "./fontManagement";
+export type * from "./toSvg";
+export type * from "./toImage";
 
 const serviceName = "toImageService";
 
@@ -23,61 +29,46 @@ declare module "koishi" {
   }
 }
 
-let initialized = false;
-
 class ToImageService extends Service {
-  private _ctx: Context;
-  private _config: ToImageService.Config;
+  beanHelper: BeanHelper<ToImageService.Config> = new BeanHelper();
 
-  constructor(ctx: Context, config: ToImageService.Config) {
-    super(ctx, serviceName);
-    this._ctx = ctx;
-    this._config = config;
-  }
+  toReactElement = toReactElement;
 
-  async start() {
-    if (initialized) {
-      return;
-    }
-    await initToSvg();
-    await initToImage(this._ctx);
-    initialized = true;
-  }
+  fontManagement: FontManagement = this.beanHelper.instance(FontManagement);
+  satoriRenderer: SatoriRenderer = this.beanHelper.instance(SatoriRenderer);
+  skiaCanvasRenderer: SkiaCanvasRenderer =
+    this.beanHelper.instance(SkiaCanvasRenderer);
+  sharpRenderer: SharpRenderer = this.beanHelper.instance(SharpRenderer);
+  resvgRenderer: ResvgRenderer = this.beanHelper.instance(ResvgRenderer);
+  takumiRenderer: TakumiRenderer = this.beanHelper.instance(TakumiRenderer);
 
-  addFont(fonts: Font[]) {
-    fontManagement.addFont(fonts);
-    this.ctx.on("dispose", () => {
-      fontManagement.removeFont(fonts);
+  constructor(
+    private _ctx: Context,
+    private _config: ToImageService.Config,
+  ) {
+    super(_ctx, serviceName);
+    this.beanHelper.setCtx(_ctx, _config);
+    _ctx.on("dispose", async () => {
+      await this.beanHelper.destroy();
     });
   }
 
-  removeFont(fonts: Font[]) {
-    fontManagement.removeFont(fonts);
+  async start() {
+    await this.beanHelper.start();
   }
 
-  fontManagement = fontManagement;
-
-  toSvgBase = toSvgBase;
-  reactElementToSvg = reactElementToSvg;
-  toReactElement = toReactElement;
-
-  toImageBase = toImageBase;
-  svgToImage = new SvgToImage();
-
-  async htmlToImage(htmlCode: string, satoriOptions?: VercelSatoriOptions) {
+  async htmlToImage(htmlCode: string, options?: TakumiType.RenderOptions) {
     const reactElement = toReactElement.htmlToReactElement(htmlCode);
-    const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
-    return await this.svgToImage.resvg(svg);
+    return await this.takumiRenderer.render(reactElement, options);
   }
 
   async jsxToImage(
     jsxCode: string,
     data?: Record<any, any>,
-    satoriOptions?: VercelSatoriOptions,
+    options?: TakumiType.RenderOptions,
   ) {
     const reactElement = await toReactElement.jsxToReactElement(jsxCode, data);
-    const svg = await reactElementToSvg.satori(reactElement, satoriOptions);
-    return await this.svgToImage.resvg(svg);
+    return await this.takumiRenderer.render(reactElement, options);
   }
 }
 const readme = fs.readFileSync(path.join(__dirname, "../readme.md"), "utf8");
@@ -87,7 +78,7 @@ namespace ToImageService {
   export const inject = ["node"];
 
   export interface Config {}
-  export const Config: Schema<Config> = Schema.object({});
+  export const Config: Schema<Config> = Schema.object({}) as any;
 }
 
 export default ToImageService;

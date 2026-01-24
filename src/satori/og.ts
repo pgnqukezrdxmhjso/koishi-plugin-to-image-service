@@ -128,14 +128,13 @@ const loadDynamicAsset = ({ emoji }: { emoji?: EmojiType }) => {
 export async function renderSvg(
   satori: typeof Satori,
   options: VercelSatoriOptions,
-  defaultFonts: Font[],
   element: ReactElement<any, any>,
 ) {
   return await satori(element, {
     width: options.width,
     height: options.height,
     debug: options.debug,
-    fonts: options.fonts || defaultFonts,
+    fonts: options.fonts,
     loadAdditionalAsset: loadDynamicAsset({
       emoji: options.emoji,
     }),
