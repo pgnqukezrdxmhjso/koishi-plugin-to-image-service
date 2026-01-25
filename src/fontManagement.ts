@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
-import { BeanType, readDirFiles } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import {
+  BeanHelper,
+  Files,
+  Strings,
+} from "koishi-plugin-rzgtboeyndxsklmq-commons";
 import FontKit from "fontkit";
 import ToImageService from "./index";
 export namespace FontManagement {
@@ -24,7 +28,7 @@ export namespace FontManagement {
     hash: string;
   }
 }
-export class FontManagement extends BeanType<ToImageService.Config> {
+export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
   readonly FontExt: FontManagement.FontFormat[] = [
     "ttf",
     "otf",
@@ -37,6 +41,18 @@ export class FontManagement extends BeanType<ToImageService.Config> {
 
   async start() {
     await this._loadFontDir([this.defaultFontDir], true);
+    await this.loadConfig();
+  }
+
+  async loadConfig() {
+    const config = this.config.font;
+    if (Strings.isNotBlank(config.dir)) {
+      await this.loadFontDir([
+        path.isAbsolute(config.dir)
+          ? config.dir
+          : path.resolve(this.ctx.baseDir, config.dir),
+      ]);
+    }
   }
 
   ext(filePath: string) {
@@ -70,7 +86,7 @@ export class FontManagement extends BeanType<ToImageService.Config> {
     const filePaths = [];
     for (const dirPath of dirPaths) {
       try {
-        const files = await readDirFiles(dirPath);
+        const files = await Files.readDirFiles(dirPath);
         filePaths.push(...files);
       } catch (e) {
         this.ctx.logger.error(e);
@@ -131,6 +147,7 @@ export class FontManagement extends BeanType<ToImageService.Config> {
       for (const font of fonts) {
         this.fontPool[font.hash] = font;
       }
+      this.fontChangeLog(fonts, "load");
     }
 
     return fonts;
@@ -140,6 +157,31 @@ export class FontManagement extends BeanType<ToImageService.Config> {
     for (const font of fonts) {
       delete this.fontPool[font.hash];
     }
+    this.fontChangeLog(fonts, "remove");
+  }
+
+  private fontChangeLog(fonts: FontManagement.Font[], msg: string) {
+    if (this.config.font.logInfo) {
+      const familyNames: string[] = [];
+      fonts.forEach((font) => {
+        if (!familyNames.includes(font.family)) {
+          familyNames.push(font.family);
+        }
+      });
+      this.ctx.logger.info(`${msg} font: ${familyNames.join(", ")}`);
+      this.ctx.logger.info(`current fonts: ${this.getFamily().join(", ")}`);
+    }
+  }
+
+  getFamily() {
+    const familyNames: string[] = [];
+    for (const hash in this.fontPool) {
+      const font = this.fontPool[hash];
+      if (!familyNames.includes(font.family)) {
+        familyNames.push(font.family);
+      }
+    }
+    return familyNames;
   }
 
   getFonts({

@@ -1,10 +1,7 @@
 import { ReactElement } from "react";
-import {
-  renderSvg,
-  VercelSatoriOptions as SatoriOptions,
-} from "./satori/og";
+import { renderSvg, VercelSatoriOptions as SatoriOptions } from "./satori/og";
 import { FontManagement } from "./fontManagement";
-import { BeanHelper, BeanType } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 import ToImageService from "./index";
 import type Satori from "satori";
 
@@ -12,7 +9,7 @@ export namespace SatoriRenderer {
   export type VercelSatoriOptions = SatoriOptions;
 }
 
-export class SatoriRenderer extends BeanType<ToImageService.Config> {
+export class SatoriRenderer extends BeanHelper.BeanType<ToImageService.Config> {
   readonly FontFormats: FontManagement.FontFormat[] = ["ttf", "otf", "woff"];
   readonly FontVariable = false;
 

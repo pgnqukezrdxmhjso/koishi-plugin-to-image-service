@@ -1,4 +1,4 @@
-import { BeanType } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import type { ReactElement } from "react";
 import type * as TakumiType from "@takumi-rs/core";
@@ -33,7 +33,7 @@ export namespace SkiaCanvasRenderer {
         quality?: number;
       };
 }
-export class SkiaCanvasRenderer extends BeanType<ToImageService.Config> {
+export class SkiaCanvasRenderer extends BeanHelper.BeanType<ToImageService.Config> {
   readonly SkiaCanvasPackageName = "@napi-rs/canvas";
   private skiaCanvas: typeof SkiaCanvasType;
 
@@ -104,7 +104,7 @@ export class SkiaCanvasRenderer extends BeanType<ToImageService.Config> {
   }
 }
 
-export class SharpRenderer extends BeanType<ToImageService.Config> {
+export class SharpRenderer extends BeanHelper.BeanType<ToImageService.Config> {
   readonly SharpPackageName = "sharp";
   private sharp: typeof SharpType;
 
@@ -139,7 +139,7 @@ export class SharpRenderer extends BeanType<ToImageService.Config> {
   }
 }
 
-export class ResvgRenderer extends BeanType<ToImageService.Config> {
+export class ResvgRenderer extends BeanHelper.BeanType<ToImageService.Config> {
   readonly ResvgPackageName = "@resvg/resvg-js";
   readonly FontFormats: FontManagement.FontFormat[] = ["ttf", "otf"];
   readonly FontVariable = true;
@@ -187,7 +187,7 @@ export class ResvgRenderer extends BeanType<ToImageService.Config> {
   }
 }
 
-export class TakumiRenderer extends BeanType<ToImageService.Config> {
+export class TakumiRenderer extends BeanHelper.BeanType<ToImageService.Config> {
   readonly TakumiPackageName = "@takumi-rs/core";
   readonly FontFormats: FontManagement.FontFormat[] = [
     "ttf",

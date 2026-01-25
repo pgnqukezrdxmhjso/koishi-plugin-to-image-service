@@ -1,11 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { Context, Schema, Service } from "koishi";
-import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import { Context, Service } from "koishi";
 // noinspection ES6UnusedImports
 import {} from "koishi-plugin-w-node";
+import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
+import type * as TakumiType from "@takumi-rs/core";
+
+import { Config as _Config } from "./config";
 import { toReactElement } from "./toReactElement";
 import { FontManagement } from "./fontManagement";
 import { SatoriRenderer } from "./toSvg";
@@ -15,7 +18,6 @@ import {
   ResvgRenderer,
   TakumiRenderer,
 } from "./toImage";
-import type * as TakumiType from "@takumi-rs/core";
 
 export type * from "./fontManagement";
 export type * from "./toSvg";
@@ -47,9 +49,12 @@ class ToImageService extends Service {
     private _config: ToImageService.Config,
   ) {
     super(_ctx, serviceName);
+
     this.beanHelper.setCtx(_ctx, _config);
+
     _ctx.on("dispose", async () => {
       await this.beanHelper.destroy();
+      this.beanHelper = null;
     });
   }
 
@@ -71,14 +76,15 @@ class ToImageService extends Service {
     return await this.takumiRenderer.render(reactElement, options);
   }
 }
+
 const readme = fs.readFileSync(path.join(__dirname, "../readme.md"), "utf8");
 namespace ToImageService {
   export const usage = readme;
 
   export const inject = ["node"];
 
-  export interface Config {}
-  export const Config: Schema<Config> = Schema.object({}) as any;
+  export const Config = _Config;
+  export type Config = _Config;
 }
 
 export default ToImageService;

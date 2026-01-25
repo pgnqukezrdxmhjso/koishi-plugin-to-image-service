@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { loadService } from "./testBase";
-import { test2 } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import { Test } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import test2 = Test.test2;
 
 (async () => {
   const toImageService = await loadService();

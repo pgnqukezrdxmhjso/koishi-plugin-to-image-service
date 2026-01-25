@@ -1,0 +1,5 @@
+_config:
+  font:
+    _prompt: Les polices sont supportées dans les formats ttf|otf|woff|woff2, veuillez utiliser de préférence les deux premiers. Certaines bibliothèques graphiques ne supportent pas le format woff. Certaines bibliothèques graphiques ne supportent pas les polices variables.
+    logInfo: Informations de débogage
+    dir: Répertoire des polices

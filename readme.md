@@ -6,6 +6,10 @@ Generate images using a non-puppeteer solution
 
 ---
 
+[example](https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service/blob/master/test/toPng.ts)
+
+---
+
 ### to ReactElement
 
 html to ReactElement [html-react-parser](https://www.npmjs.com/package/html-react-parser)
@@ -23,10 +27,13 @@ ReactElement to svg [vercel/satori](https://github.com/vercel/satori#overview)
 
 ### to image
 
-[@resvg/resvg-wasm](https://www.npmjs.com/package/@resvg/resvg-wasm)
+[@resvg/resvg-js](https://www.npmjs.com/package/@resvg/resvg-js)
 
-[wasm-vips](https://www.npmjs.com/package/wasm-vips)
+[sharp](https://www.npmjs.com/package/sharp)
 
 [@napi-rs/canvas](https://www.npmjs.com/package/@napi-rs/canvas)
 [canvg](https://www.npmjs.com/package/canvg)
 [jsdom](https://www.npmjs.com/package/jsdom)
+
+ReactElement to image [takumi](https://takumi.kane.tw/docs/reference)
+[playground](https://takumi.kane.tw/playground)

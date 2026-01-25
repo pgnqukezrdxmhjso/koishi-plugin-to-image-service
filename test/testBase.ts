@@ -32,11 +32,11 @@ export async function loadService() {
   });
   await node.start();
 
-  const toImageService = new ToImageService({ ...ctx, node } as any, {});
+  const toImageService = new ToImageService({ ...ctx, node } as any, {} as any);
   await toImageService.start();
   await toImageService.fontManagement.loadFontDir([
     // path.resolve("../../to-image-service-font-jetbrains-mono"),
-    path.resolve("../../to-image-service-font-source-han-mono-sc"),
+    // path.resolve("../../to-image-service-font-source-han-mono-sc"),
     // "C:\\Users\\root\\Downloads\\f\\ttf",
     // "C:\\Users\\root\\Downloads\\f\\2",
     // "C:\\Users\\root\\Downloads\\f\\AidianSignatureTi-Regular",

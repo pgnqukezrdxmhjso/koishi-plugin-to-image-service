@@ -23,9 +23,9 @@ export async function installPackage(ctx: Context, packageName: string) {
 }
 
 export async function importPackage(ctx: Context, packageName: string) {
-  const packageDir = ctx.node.getPackageDir(packageName);
   await installPackage(ctx, packageName);
 
+  const packageDir = ctx.node.getPackageDir(packageName);
   const require = module.createRequire(url.pathToFileURL(packageDir).href);
   const entryPath = require.resolve(packageName);
   return await import(url.pathToFileURL(entryPath).href);

@@ -1,0 +1,5 @@
+_config:
+  font:
+    _prompt: Fonts support ttf|otf|woff|woff2 formats. Please try to use the first two, as some graphics libraries do not support woff. Some graphics libraries do not support variable fonts.
+    logInfo: Debug Info
+    dir: Font Directory
