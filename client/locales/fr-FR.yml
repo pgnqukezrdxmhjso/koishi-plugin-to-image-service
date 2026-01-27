@@ -1,0 +1,7 @@
+FontInfo:
+  fontInfo: Informations sur la police
+  italic: Italique
+  variable: Variable
+copy:
+  copyTitle: Cliquer pour copier
+  success: Copié avec succès !

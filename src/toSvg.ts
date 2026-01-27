@@ -1,22 +1,24 @@
+import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+
 import { ReactElement } from "react";
+import type Satori from "satori";
+
 import { renderSvg, VercelSatoriOptions as SatoriOptions } from "./satori/og";
 import { FontManagement } from "./fontManagement";
-import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
-import ToImageService from "./index";
-import type Satori from "satori";
+import type { Config } from "./config";
 
 export namespace SatoriRenderer {
   export type VercelSatoriOptions = SatoriOptions;
 }
 
-export class SatoriRenderer extends BeanHelper.BeanType<ToImageService.Config> {
+export class SatoriRenderer extends BeanHelper.BeanType<Config> {
   readonly FontFormats: FontManagement.FontFormat[] = ["ttf", "otf", "woff"];
   readonly FontVariable = false;
 
   private satori: typeof Satori;
   private fontManagement: FontManagement;
 
-  constructor(beanHelper: BeanHelper<ToImageService.Config>) {
+  constructor(beanHelper: BeanHelper<Config>) {
     super(beanHelper);
     this.fontManagement = beanHelper.instance(FontManagement);
   }

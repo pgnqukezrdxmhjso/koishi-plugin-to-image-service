@@ -1,13 +1,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+
 import {
   BeanHelper,
   Files,
   Strings,
 } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+
 import FontKit from "fontkit";
-import ToImageService from "./index";
+
+import type { Config } from "./config";
+
 export namespace FontManagement {
   export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
   export type FontFormat = "ttf" | "otf" | "woff" | "woff2";
@@ -25,10 +29,16 @@ export namespace FontManagement {
     filePath: string;
     format: FontFormat;
     data: Buffer;
+    dataSize: number;
     hash: string;
   }
+  export interface Family {
+    family: string;
+    totalDataSize: number;
+    members: Font[];
+  }
 }
-export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
+export class FontManagement extends BeanHelper.BeanType<Config> {
   readonly FontExt: FontManagement.FontFormat[] = [
     "ttf",
     "otf",
@@ -46,7 +56,7 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
 
   async loadConfig() {
     const config = this.config.font;
-    if (Strings.isNotBlank(config.dir)) {
+    if (Strings.isNotBlank(config?.dir)) {
       await this.loadFontDir([
         path.isAbsolute(config.dir)
           ? config.dir
@@ -75,8 +85,24 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
       filePath: fontFile.filePath,
       format: fontFile.format,
       data: fontFile.data,
+      dataSize: fontFile.data.length,
       hash: crypto.createHash("sha256").update(fontFile.data).digest("hex"),
-    } as FontManagement.Font;
+    } satisfies FontManagement.Font;
+  }
+
+  fontSort(a: FontManagement.Font, b: FontManagement.Font) {
+    if (a.family !== b.family) {
+      return a.family.localeCompare(b.family);
+    }
+    if (a.variable !== b.variable) {
+      return (b.variable ? 1 : 0) - (a.variable ? 1 : 0);
+    }
+    if (a.weight !== b.weight) {
+      return a.weight - b.weight;
+    }
+    if (a.italic !== b.italic) {
+      return (a.italic ? 1 : 0) - (b.italic ? 1 : 0);
+    }
   }
 
   async loadFontDir(dirPaths: string[]) {
@@ -126,20 +152,7 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
       }
     }
 
-    fonts.sort((a, b) => {
-      if (a.family !== b.family) {
-        return a.family.localeCompare(b.family);
-      }
-      if (a.variable !== b.variable) {
-        return (b.variable ? 1 : 0) - (a.variable ? 1 : 0);
-      }
-      if (a.weight !== b.weight) {
-        return a.weight - b.weight;
-      }
-      if (a.italic !== b.italic) {
-        return (a.italic ? 1 : 0) - (b.italic ? 1 : 0);
-      }
-    });
+    fonts.sort(this.fontSort);
 
     if (isDefault) {
       this.defaultFonts = fonts;
@@ -161,7 +174,7 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
   }
 
   private fontChangeLog(fonts: FontManagement.Font[], msg: string) {
-    if (this.config.font.logInfo) {
+    if (this.config?.font?.logInfo) {
       const familyNames: string[] = [];
       fonts.forEach((font) => {
         if (!familyNames.includes(font.family)) {
@@ -169,11 +182,13 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
         }
       });
       this.ctx.logger.info(`${msg} font: ${familyNames.join(", ")}`);
-      this.ctx.logger.info(`current fonts: ${this.getFamily().join(", ")}`);
+      this.ctx.logger.info(
+        `current fonts: ${this.getFamilyNames().join(", ")}`,
+      );
     }
   }
 
-  getFamily() {
+  getFamilyNames() {
     const familyNames: string[] = [];
     for (const hash in this.fontPool) {
       const font = this.fontPool[hash];
@@ -182,6 +197,38 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
       }
     }
     return familyNames;
+  }
+
+  getAllFamily(simple: boolean = false) {
+    const fonts: FontManagement.Font[] = [];
+    for (const hash in this.fontPool) {
+      fonts.push(this.fontPool[hash]);
+    }
+    fonts.sort(this.fontSort);
+
+    const familyNames: Record<string, FontManagement.Family> = {};
+    const families: FontManagement.Family[] = [];
+    for (const font of fonts) {
+      if (!familyNames[font.family]) {
+        const family: FontManagement.Family = {
+          family: font.family,
+          totalDataSize: 0,
+          members: [],
+        };
+        familyNames[font.family] = family;
+        families.push(family);
+      }
+      const family = familyNames[font.family];
+      family.totalDataSize += font.dataSize;
+      if (simple) {
+        const f = { ...font };
+        delete f.data;
+        family.members.push(f);
+      } else {
+        family.members.push(font);
+      }
+    }
+    return families;
   }
 
   getFonts({
@@ -214,19 +261,30 @@ export class FontManagement extends BeanHelper.BeanType<ToImageService.Config> {
       const familySize: Record<string, number> = {};
       for (const font of fonts) {
         familySize[font.family] ||= 0;
-        familySize[font.family] += font.data.length;
+        familySize[font.family] += font.dataSize;
       }
       familyNames.sort((a, b) => familySize[b] - familySize[a]);
     }
 
     const resFonts: FontManagement.Font[] = [];
-    for (let i = 0; i < familyNames.length && i < sizeMax; i++) {
-      const familyName = familyNames[i];
+
+    if (sizeMax === 1 && Strings.isNotBlank(this.config?.font?.defaultFamily)) {
       fonts.forEach((font) => {
-        if (font.family === familyName) {
+        if (font.family === this.config.font.defaultFamily) {
           resFonts.push(font);
         }
       });
+    }
+
+    if (resFonts.length < 1) {
+      for (let i = 0; i < familyNames.length && i < sizeMax; i++) {
+        const familyName = familyNames[i];
+        fonts.forEach((font) => {
+          if (font.family === familyName) {
+            resFonts.push(font);
+          }
+        });
+      }
     }
 
     if (resFonts.length < 1) {

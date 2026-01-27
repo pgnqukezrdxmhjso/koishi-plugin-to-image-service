@@ -1,0 +1,7 @@
+FontInfo:
+  fontInfo: Информация о шрифте
+  italic: Курсив
+  variable: Вариативный
+copy:
+  copyTitle: Нажмите, чтобы скопировать
+  success: Копирование успешно!

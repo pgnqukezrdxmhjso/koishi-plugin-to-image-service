@@ -1,0 +1,7 @@
+FontInfo:
+  fontInfo: 字型資訊
+  italic: 斜體
+  variable: 可變
+copy:
+  copyTitle: 點擊複製
+  success: 複製成功！

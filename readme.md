@@ -37,3 +37,7 @@ ReactElement to svg [vercel/satori](https://github.com/vercel/satori#overview)
 
 ReactElement to image [takumi](https://takumi.kane.tw/docs/reference)
 [playground](https://takumi.kane.tw/playground)
+
+---
+
+[<img alt="No AI Icon" height="64" src="https://no-ai-icon.com/wp-content/uploads/2023/02/no-ai-icon-07.svg" width="64"/>](https://no-ai-icon.com/statement/?url=koishi-plugin-to-image-service)

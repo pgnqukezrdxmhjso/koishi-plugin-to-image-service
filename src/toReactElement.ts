@@ -1,6 +1,7 @@
 import { transform } from "sucrase";
 import React, { ReactElement } from "react";
 import HtmlReactParser from "html-react-parser";
+
 const AsyncFunction: FunctionConstructor = (async () => 0)
   .constructor as FunctionConstructor;
 

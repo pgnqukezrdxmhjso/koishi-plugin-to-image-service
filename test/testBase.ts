@@ -25,6 +25,7 @@ export async function loadService() {
     logger: {
       error: console.error,
     },
+    inject() {},
   };
   const node = new WNode(ctx as any, {
     packagePath: path.resolve(__dirname, "../../../cache/node"),

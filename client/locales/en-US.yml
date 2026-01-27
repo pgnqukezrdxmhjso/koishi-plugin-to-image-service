@@ -1,0 +1,7 @@
+FontInfo:
+  fontInfo: Font Info
+  italic: Italic
+  variable: Variable
+copy:
+  copyTitle: Click to copy
+  success: Copied successfully!
