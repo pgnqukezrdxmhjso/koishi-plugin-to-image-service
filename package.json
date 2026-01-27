@@ -1,13 +1,13 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "cd ../../ && yarn build to-image-service",
     "pub": "cd ../../ && yarn pub to-image-service",
-    "fastPub": "cd ../../ && yarn bump -2 to-image-service && yarn build to-image-service && yarn pub to-image-service"
+    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service"
   },
   "files": [
     "lib",
