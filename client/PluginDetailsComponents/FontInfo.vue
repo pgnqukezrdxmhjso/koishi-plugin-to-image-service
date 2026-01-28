@@ -23,6 +23,7 @@
               <div :class="$style['family-info']">
                 <span>
                   <el-icon
+                    v-if="isSupported"
                     color="#409efc"
                     :size="24"
                     :title="_t('copy.copyTitle')"
@@ -30,7 +31,7 @@
                   >
                     <DocumentCopy />
                   </el-icon>
-                  {{ family.family }}
+                  <span :class="$style['select-all']">{{ family.family }}</span>
                 </span>
                 <span>
                   {{ propelSizeUnit(family.totalDataSize) }}
@@ -108,7 +109,9 @@ const propelSizeUnit = (size = 0, unit = 0) => {
   return propelSizeUnit(size / 1024, unit + 1);
 };
 
-const { copy, copied } = useClipboard();
+const { copy, copied, isSupported } = useClipboard({
+  legacy: true,
+});
 watch(copied, (val) => {
   if (val) ElMessage.success(_t("copy.success"));
 });
@@ -136,6 +139,9 @@ watch(copied, (val) => {
     * {
       text-align: start;
       vertical-align: middle;
+    }
+    .select-all {
+      user-select: all;
     }
   }
   .font-info {

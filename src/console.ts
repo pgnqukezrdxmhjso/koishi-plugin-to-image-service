@@ -24,9 +24,17 @@ export default class Console extends BeanHelper.BeanType<Config> {
         this.fontManagement.getAllFamily(true),
       );
 
+      let prod = path.resolve(__dirname, "../dist");
+      if (prod.includes("external") && !prod.includes("node_modules")) {
+        prod = path.join(
+          ctx.baseDir,
+          "node_modules/koishi-plugin-to-image-service/dist",
+        );
+      }
+
       ctx.console.addEntry({
         dev: path.resolve(__dirname, "../client/index.ts"),
-        prod: path.resolve(__dirname, "../dist"),
+        prod,
       });
     });
   }

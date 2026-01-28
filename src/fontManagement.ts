@@ -268,11 +268,13 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
 
     const resFonts: FontManagement.Font[] = [];
 
-    if (sizeMax === 1 && Strings.isNotBlank(this.config?.font?.defaultFamily)) {
-      fonts.forEach((font) => {
-        if (font.family === this.config.font.defaultFamily) {
-          resFonts.push(font);
-        }
+    if (this.config?.font?.defaultFamily?.length > 0) {
+      this.config.font.defaultFamily.forEach((familyName) => {
+        fonts.forEach((font) => {
+          if (font.family === familyName) {
+            resFonts.push(font);
+          }
+        });
       });
     }
 

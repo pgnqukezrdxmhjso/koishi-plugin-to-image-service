@@ -4,7 +4,7 @@ export interface Config {
   font: {
     logInfo: boolean;
     dir: string;
-    defaultFamily: string;
+    defaultFamily: string[];
   };
 }
 
@@ -15,7 +15,7 @@ export const Config: Schema<Config> = Schema.object({
     dir: Schema.path({
       filters: ["directory"],
     }),
-    defaultFamily: Schema.string(),
+    defaultFamily: Schema.array(String),
   }),
 }).i18n({
   "en-US": require("./locales/en-US")._config,
