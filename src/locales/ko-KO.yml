@@ -1,6 +1,6 @@
 _config:
   font:
-    _prompt: 글꼴은 ttf|otf|woff|woff2 네 가지 형식을 지원하며, 가급적 앞의 두 가지를 사용해 주십시오. 일부 그래픽 라이브러리는 woff를 지원하지 않습니다. 일부 그래픽 라이브러리는 가변 글꼴(Variable Fonts)을 지원하지 않습니다.
+    _prompt: ttf, otf, woff, woff2 형식을 지원합니다. 일부 라이브러리에서 woff나 가변 글꼴을 지원하지 않으므로 가급적 ttf 또는 otf를 사용하세요. Takumi는 COLRv0 형식을 지원합니다. 폰트가 없을 경우 내장된 DingTalkJinBuTi-Regular와 TwemojiCOLRv0를 사용합니다.
     logInfo: 디버깅 정보
     dir: 글꼴 디렉토리
     defaultFamily: 기본 글꼴 패밀리

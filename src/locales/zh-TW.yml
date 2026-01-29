@@ -1,6 +1,6 @@
 _config:
   font:
-    _prompt: 字型支援 ttf|otf|woff|woff2 四種格式，請盡量使用前兩種，部分圖形庫不支援 woff。部分圖形庫不支援可變字型。
+    _prompt: 支援 ttf、otf、woff 和 woff2 格式。請優先使用前兩種，部分圖形庫不支援 woff 或可變字體。Takumi 支援 COLRv0 字體。未載入字體時使用內建的 釘釘進步體 (Regular) 與 TwemojiCOLRv0。
     logInfo: 除錯資訊
     dir: 字型目錄
     defaultFamily: 預設字型族

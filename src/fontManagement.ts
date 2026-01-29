@@ -15,6 +15,7 @@ import type { Config } from "./config";
 export namespace FontManagement {
   export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
   export type FontFormat = "ttf" | "otf" | "woff" | "woff2";
+  export type ColrVer = 0 | 1;
   export interface FontFile {
     filePath: string;
     format: FontFormat;
@@ -26,6 +27,9 @@ export namespace FontManagement {
     weight: FontWeight;
     italic: boolean;
     variable: boolean;
+    colrVer?: FontManagement.ColrVer;
+    characterCount: number;
+    ligatureCount: number;
     filePath: string;
     format: FontFormat;
     data: Buffer;
@@ -45,12 +49,23 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     "woff",
     "woff2",
   ];
+
   readonly defaultFontDir = path.resolve(__dirname, "../assets/font");
   defaultFonts: FontManagement.Font[];
+  readonly defaultEmojiFontFile = path.resolve(
+    __dirname,
+    "../assets/TwemojiCOLRv0.ttf",
+  );
+  defaultEmojiFont: FontManagement.Font;
+
   fontPool: Record<string, FontManagement.Font> = {};
 
   async start() {
     await this._loadFontDir([this.defaultFontDir], true);
+    this.defaultEmojiFont = this.parseFont(
+      await this.parseFontFile(this.defaultEmojiFontFile),
+    );
+
     await this.loadConfig();
   }
 
@@ -69,11 +84,37 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     return path.extname(filePath)?.toLowerCase().replace(/^\./g, "");
   }
 
-  parseFont(fontFile: FontManagement.FontFile) {
+  private async parseFontFile(
+    filePath: string,
+  ): Promise<FontManagement.FontFile> {
+    const ext = this.ext(filePath);
+    if (!this.FontExt.includes(ext as any)) {
+      return null;
+    }
+
+    return {
+      filePath,
+      format: ext as any,
+      data: await fs.readFile(filePath),
+    };
+  }
+
+  parseFont(fontFile: FontManagement.FontFile): FontManagement.Font {
     const font = FontKit.create(fontFile.data);
     if (font.type !== "TTF" && font.type !== "WOFF" && font.type !== "WOFF2") {
       return null;
     }
+    let ligatureCount = 0;
+    const lookupList = font["GSUB"]?.lookupList?.toArray() || [];
+    lookupList.forEach((lookup: any) => {
+      lookup?.subTables?.forEach((subtable: any) => {
+        if (subtable.coverage && subtable.ligatureSets) {
+          ligatureCount += subtable.ligatureSets
+            .toArray()
+            .reduce((acc: number, set: any) => acc + set.length, 0);
+        }
+      });
+    });
     return {
       family:
         font.getName("preferredFamily", "") || font.getName("fontFamily", ""),
@@ -82,12 +123,15 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       italic: font["OS/2"]?.fsSelection?.italic || font.italicAngle !== 0,
       variable:
         font.variationAxes && Object.keys(font.variationAxes).length > 0,
+      ...("COLR" in font ? { colrVer: font["COLR"]?.["version"] || 0 } : {}),
+      characterCount: font.characterSet.length,
+      ligatureCount,
       filePath: fontFile.filePath,
       format: fontFile.format,
       data: fontFile.data,
       dataSize: fontFile.data.length,
       hash: crypto.createHash("sha256").update(fontFile.data).digest("hex"),
-    } satisfies FontManagement.Font;
+    };
   }
 
   fontSort(a: FontManagement.Font, b: FontManagement.Font) {
@@ -127,15 +171,10 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
   private async _loadFontFiles(filePaths: string[], isDefault: boolean) {
     const fontFiles: FontManagement.FontFile[] = [];
     for (const filePath of filePaths) {
-      const ext = this.ext(filePath);
-      if (!this.FontExt.includes(ext as any)) {
-        continue;
+      const fontFile = await this.parseFontFile(filePath);
+      if (fontFile) {
+        fontFiles.push(fontFile);
       }
-      fontFiles.push({
-        filePath,
-        format: ext as any,
-        data: await fs.readFile(filePath),
-      });
     }
     return this._loadFont(fontFiles, isDefault);
   }
@@ -206,19 +245,19 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     }
     fonts.sort(this.fontSort);
 
-    const familyNames: Record<string, FontManagement.Family> = {};
+    const familiesMap: Record<string, FontManagement.Family> = {};
     const families: FontManagement.Family[] = [];
     for (const font of fonts) {
-      if (!familyNames[font.family]) {
+      if (!familiesMap[font.family]) {
         const family: FontManagement.Family = {
           family: font.family,
           totalDataSize: 0,
           members: [],
         };
-        familyNames[font.family] = family;
+        familiesMap[font.family] = family;
         families.push(family);
       }
-      const family = familyNames[font.family];
+      const family = familiesMap[font.family];
       family.totalDataSize += font.dataSize;
       if (simple) {
         const f = { ...font };
@@ -231,23 +270,81 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     return families;
   }
 
+  private emojiRegex = new RegExp(
+    "" +
+      "\\p{Emoji_Presentation}|\\p{Extended_Pictographic}|[^\x00-\x7F](?<=\\p{Emoji_Component})",
+    "u",
+  );
+  isEmoji(t: string) {
+    return this.emojiRegex.test(t);
+  }
+
   getFonts({
     formats,
-    needVariable = false,
-    sort = "familySize",
-    sizeMax = 1,
+    needVariable,
+    needColr,
+    needDefaultEmojiFont,
+    preferredFamilyNames,
+    fallbackSort = "familySize",
+    fallbackSizeMax = 1,
   }: {
     formats: FontManagement.FontFormat[];
-    needVariable?: boolean;
-    sort?: "familySize";
-    sizeMax?: number;
+    needVariable?: true;
+    needColr?: true | FontManagement.ColrVer[];
+    needDefaultEmojiFont?: true;
+    preferredFamilyNames?: string[];
+    fallbackSort?: "familySize";
+    fallbackSizeMax?: number;
   }) {
     const fonts: FontManagement.Font[] = [];
     for (const hash in this.fontPool) {
       const font = this.fontPool[hash];
-      if (formats.includes(font.format) && (!font.variable || needVariable)) {
+      if (
+        formats.includes(font.format) &&
+        (!font.variable || needVariable) &&
+        (!("colrVer" in font) ||
+          needColr === true ||
+          needColr.includes(font.colrVer))
+      ) {
         fonts.push(font);
       }
+    }
+
+    const resFonts: FontManagement.Font[] = [];
+    const pickFamilyFont = (familyNames: String[]) => {
+      familyNames?.forEach((familyName) => {
+        fonts.forEach((font) => {
+          if (font.family === familyName) {
+            resFonts.push(font);
+          }
+        });
+      });
+    };
+
+    const res = (res = resFonts) => {
+      if (!needDefaultEmojiFont || !needColr) {
+        return res;
+      }
+      if (
+        res.some(
+          (font) =>
+            font.family.toLowerCase().includes("emoji") ||
+            font.name.toLowerCase().includes("emoji"),
+        )
+      ) {
+        return res;
+      }
+      return [...res, this.defaultEmojiFont];
+    };
+
+    pickFamilyFont(preferredFamilyNames);
+
+    if (resFonts.length < 0) {
+      pickFamilyFont(this.config?.font?.defaultFamily);
+    }
+
+    if (resFonts.length > 0) {
+      return res();
     }
 
     const familyNames: string[] = [];
@@ -257,7 +354,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       }
     });
 
-    if (sort === "familySize" && fonts.length > 1) {
+    if (fallbackSort === "familySize" && fonts.length > 1) {
       const familySize: Record<string, number> = {};
       for (const font of fonts) {
         familySize[font.family] ||= 0;
@@ -266,32 +363,14 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       familyNames.sort((a, b) => familySize[b] - familySize[a]);
     }
 
-    const resFonts: FontManagement.Font[] = [];
-
-    if (this.config?.font?.defaultFamily?.length > 0) {
-      this.config.font.defaultFamily.forEach((familyName) => {
-        fonts.forEach((font) => {
-          if (font.family === familyName) {
-            resFonts.push(font);
-          }
-        });
-      });
+    if (familyNames.length > fallbackSizeMax) {
+      familyNames.length = fallbackSizeMax;
     }
+    pickFamilyFont(familyNames);
 
     if (resFonts.length < 1) {
-      for (let i = 0; i < familyNames.length && i < sizeMax; i++) {
-        const familyName = familyNames[i];
-        fonts.forEach((font) => {
-          if (font.family === familyName) {
-            resFonts.push(font);
-          }
-        });
-      }
+      return res(this.defaultFonts);
     }
-
-    if (resFonts.length < 1) {
-      return this.defaultFonts;
-    }
-    return resFonts;
+    return res();
   }
 }

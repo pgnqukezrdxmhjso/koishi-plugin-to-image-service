@@ -2,6 +2,8 @@ FontInfo:
   fontInfo: 글꼴 정보
   italic: 이탤릭
   variable: 가변
+  characterCount: "글자 수: {0}"
+  ligatureCount: "합자 수: {0}"
 copy:
   copyTitle: 클릭하여 복사
   success: 복사 성공!

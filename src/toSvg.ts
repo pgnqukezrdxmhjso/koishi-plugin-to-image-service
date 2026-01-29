@@ -13,7 +13,6 @@ export namespace SatoriRenderer {
 
 export class SatoriRenderer extends BeanHelper.BeanType<Config> {
   readonly FontFormats: FontManagement.FontFormat[] = ["ttf", "otf", "woff"];
-  readonly FontVariable = false;
 
   private satori: typeof Satori;
   private fontManagement: FontManagement;
@@ -33,11 +32,12 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
   async render(
     reactElement: ReactElement<any, any>,
     options?: SatoriRenderer.VercelSatoriOptions,
+    preferredFamilyNames?: string[],
   ) {
     options ||= {};
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
-      needVariable: this.FontVariable,
+      preferredFamilyNames,
     });
     if (fonts.length > 0) {
       options.fonts ||= [];

@@ -5,7 +5,7 @@ import { loadService } from "./testBase";
 
   const fonts = toImageService.fontManagement.getFonts({
     formats: toImageService.fontManagement.FontExt,
-    sizeMax: 9999999,
+    fallbackSizeMax: 9999999,
   });
   console.log(fonts);
 })();

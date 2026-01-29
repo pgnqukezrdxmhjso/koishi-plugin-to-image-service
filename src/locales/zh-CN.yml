@@ -1,6 +1,6 @@
 _config:
   font:
-    _prompt: 字体支持 ttf|otf|woff|woff2 四种格式，请尽量使用前两种，部分图形库不支持woff。部分图形库不支持可变字体。
+    _prompt: 字体支持 ttf|otf|woff|woff2 四种格式，请尽量使用前两种，部分图形库不支持woff。部分图形库不支持可变字体。takumi 支持使用 COLRv0 字体。没加载任何字体时使用内置的DingTalkJinBuTi-Regular与TwemojiCOLRv0
     logInfo: 调试信息
     dir: 字体目录
     defaultFamily: 默认字体族

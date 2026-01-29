@@ -2,6 +2,8 @@ FontInfo:
   fontInfo: Информация о шрифте
   italic: Курсив
   variable: Вариативный
+  characterCount: "Символов: {0}"
+  ligatureCount: "Лигатур: {0}"
 copy:
   copyTitle: Нажмите, чтобы скопировать
   success: Копирование успешно!

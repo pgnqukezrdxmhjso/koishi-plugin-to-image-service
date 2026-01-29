@@ -2,6 +2,8 @@ FontInfo:
   fontInfo: 字型資訊
   italic: 斜體
   variable: 可變
+  characterCount: "字元數: {0}"
+  ligatureCount: "連字數: {0}"
 copy:
   copyTitle: 點擊複製
   success: 複製成功！

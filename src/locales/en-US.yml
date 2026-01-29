@@ -1,6 +1,6 @@
 _config:
   font:
-    _prompt: Fonts support ttf|otf|woff|woff2 formats. Please try to use the first two, as some graphics libraries do not support woff. Some graphics libraries do not support variable fonts.
+    _prompt: Supports ttf, otf, woff, and woff2 formats. Use ttf or otf as priority, as some libraries do not support woff or variable fonts. Takumi supports COLRv0 fonts. Defaults to built-in DingTalkJinBuTi-Regular and TwemojiCOLRv0.
     logInfo: Debug Info
     dir: Font Directory
     defaultFamily: Default Font Family

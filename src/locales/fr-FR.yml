@@ -1,6 +1,6 @@
 _config:
   font:
-    _prompt: Les polices sont supportées dans les formats ttf|otf|woff|woff2, veuillez utiliser de préférence les deux premiers. Certaines bibliothèques graphiques ne supportent pas le format woff. Certaines bibliothèques graphiques ne supportent pas les polices variables.
+    _prompt: Prend en charge ttf, otf, woff et woff2. Utilisez ttf ou otf en priorité car certaines bibliothèques ne gèrent pas woff ou les polices variables. Takumi supporte le format COLRv0. Utilise par défaut DingTalkJinBuTi-Regular et TwemojiCOLRv0.
     logInfo: Informations de débogage
     dir: Répertoire des polices
     defaultFamily: Famille de polices par défaut

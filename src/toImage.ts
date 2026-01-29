@@ -11,7 +11,7 @@ import type SkiaCanvasType from "@napi-rs/canvas";
 import { Canvg } from "canvg";
 import { JSDOM } from "jsdom";
 
-import type {Config} from "./config";
+import type { Config } from "./config";
 import { FontManagement } from "./fontManagement";
 import { importPackage, installPackage } from "./util";
 
@@ -162,6 +162,7 @@ export class ResvgRenderer extends BeanHelper.BeanType<Config> {
   async render(
     svg: string,
     options?: ResvgType.ResvgRenderOptions,
+    preferredFamilyNames?: string[],
   ): Promise<Uint8Array> {
     options ||= {};
     options.font ||= {};
@@ -173,6 +174,7 @@ export class ResvgRenderer extends BeanHelper.BeanType<Config> {
       const fonts = this.fontManagement.getFonts({
         formats: this.FontFormats,
         needVariable: this.FontVariable,
+        preferredFamilyNames,
       });
       if (fonts.length > 0) {
         options.font.fontFiles ||= [];
@@ -196,6 +198,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     "woff2",
   ];
   readonly FontVariable = true;
+  readonly FontColr: FontManagement.ColrVer[] = [0];
 
   private takumi: typeof TakumiType;
   private fontManagement = this.beanHelper.instance(FontManagement);
@@ -216,10 +219,14 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
   async render(
     reactElement: ReactElement<any, any>,
     options?: TakumiType.RenderOptions,
+    preferredFamilyNames?: string[],
   ): Promise<Uint8Array> {
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
       needVariable: this.FontVariable,
+      needColr: this.FontColr,
+      needDefaultEmojiFont: true,
+      preferredFamilyNames,
     });
     const takumi = await this.getTakumi();
     const renderer = new takumi.Renderer({

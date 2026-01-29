@@ -75,6 +75,20 @@
                 >
                   {{ t("variable") }}
                 </el-tag>
+                <el-tag
+                  v-if="Number.isInteger(member.colrVer)"
+                  type="primary"
+                  effect="plain"
+                  size="small"
+                >
+                  {{ "COLRv" + member.colrVer }}
+                </el-tag>
+              </div>
+              <div>
+                {{ t("characterCount", member.characterCount) }}
+              </div>
+              <div>
+                {{ t("ligatureCount", member.ligatureCount) }}
               </div>
             </div>
           </el-collapse-item>
@@ -95,7 +109,7 @@ import { send } from "@koishijs/client";
 import type { FontManagement } from "../../src";
 
 const _t = inject<ComposerTranslation>("t");
-const t = (p: string) => _t("FontInfo." + p);
+const t = (p: string, ...a: any[]) => _t.apply(_t, ["FontInfo." + p, a]);
 const families = ref<FontManagement.Family[]>();
 
 send("to-image-service-get-all-family").then((data) => {
@@ -103,7 +117,7 @@ send("to-image-service-get-all-family").then((data) => {
 });
 
 const propelSizeUnit = (size = 0, unit = 0) => {
-  if (size <= 2048 || unit >= 5) {
+  if (size <= 1024 || unit >= 5) {
     return +size.toFixed(2) + ["", "K", "M", "G", "T", "P"][unit] + "B";
   }
   return propelSizeUnit(size / 1024, unit + 1);

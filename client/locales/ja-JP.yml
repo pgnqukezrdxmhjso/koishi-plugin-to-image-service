@@ -2,6 +2,8 @@ FontInfo:
   fontInfo: フォント情報
   italic: イタリック
   variable: バリアブル
+  characterCount: "文字数: {0}"
+  ligatureCount: "合字数: {0}"
 copy:
   copyTitle: クリックしてコピー
   success: コピーに成功しました！

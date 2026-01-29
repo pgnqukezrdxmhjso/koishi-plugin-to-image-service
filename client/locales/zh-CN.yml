@@ -2,6 +2,8 @@ FontInfo:
   fontInfo: 字体信息
   italic: 斜体
   variable: 可变
+  characterCount: "字符数: {0}"
+  ligatureCount: "连字数: {0}"
 copy:
   copyTitle: 点击复制
   success: 复制成功！
