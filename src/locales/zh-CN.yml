@@ -4,3 +4,4 @@ _config:
     logInfo: 调试信息
     dir: 字体目录
     defaultFamily: 默认字体族
+    satoriDefaultEmojiType: Satori 使用的默认 Emoji 类型

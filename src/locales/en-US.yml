@@ -4,3 +4,4 @@ _config:
     logInfo: Debug Info
     dir: Font Directory
     defaultFamily: Default Font Family
+    satoriDefaultEmojiType: Default emoji type used by Satori

@@ -4,3 +4,4 @@ _config:
     logInfo: Informations de débogage
     dir: Répertoire des polices
     defaultFamily: Famille de polices par défaut
+    satoriDefaultEmojiType: Type d'emoji par défaut utilisé par Satori

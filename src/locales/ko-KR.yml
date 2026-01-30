@@ -4,3 +4,4 @@ _config:
     logInfo: 디버깅 정보
     dir: 글꼴 디렉토리
     defaultFamily: 기본 글꼴 패밀리
+    satoriDefaultEmojiType: Satori에서 사용하는 기본 이모지 유형

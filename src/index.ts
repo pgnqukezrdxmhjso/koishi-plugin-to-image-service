@@ -9,7 +9,7 @@ import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 import type * as TakumiType from "@takumi-rs/core";
 
 import { Config as _Config } from "./config";
-import Console from "./console";
+import ConsoleEx from "./consoleEx";
 import { toReactElement } from "./toReactElement";
 import { FontManagement } from "./fontManagement";
 import { SatoriRenderer } from "./toSvg";
@@ -51,7 +51,7 @@ class ToImageService extends Service {
   ) {
     super(_ctx, serviceName);
     this.beanHelper.setCtx(_ctx, _config);
-    this.beanHelper.instance(Console);
+    this.beanHelper.instance(ConsoleEx);
 
     _ctx.on("dispose", async () => {
       await this.beanHelper.destroy();

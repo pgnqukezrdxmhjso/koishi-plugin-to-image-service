@@ -13,7 +13,7 @@ declare module "@koishijs/plugin-console" {
   }
 }
 
-export default class Console extends BeanHelper.BeanType<Config> {
+export default class ConsoleEx extends BeanHelper.BeanType<Config> {
   private fontManagement = this.beanHelper.instance(FontManagement);
 
   constructor(beanHelper: BeanHelper<Config>) {
@@ -36,6 +36,14 @@ export default class Console extends BeanHelper.BeanType<Config> {
         dev: path.resolve(__dirname, "../client/index.ts"),
         prod,
       });
+    });
+  }
+
+  broadcastFamilyRefresh() {
+    this.ctx.inject(["console"], (ctx) => {
+      ctx.console
+        .broadcast("to-image-service-get-all-family-refresh", "")
+        .then();
     });
   }
 }

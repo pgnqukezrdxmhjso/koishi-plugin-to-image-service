@@ -4,3 +4,4 @@ _config:
     logInfo: デバッグ情報
     dir: フォントディレクトリ
     defaultFamily: デフォルトフォントファミリー
+    satoriDefaultEmojiType: Satori で使用されるデフォルトの絵文字タイプ

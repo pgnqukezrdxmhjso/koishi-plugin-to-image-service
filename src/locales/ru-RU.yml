@@ -4,3 +4,4 @@ _config:
     logInfo: Отладочная информация
     dir: Директория шрифтов
     defaultFamily: Семейство шрифтов по умолчанию
+    satoriDefaultEmojiType: Тип эмодзи по умолчанию, используемый Satori

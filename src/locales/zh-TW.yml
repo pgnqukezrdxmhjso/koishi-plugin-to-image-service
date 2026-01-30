@@ -4,3 +4,4 @@ _config:
     logInfo: 除錯資訊
     dir: 字型目錄
     defaultFamily: 預設字型族
+    satoriDefaultEmojiType: Satori 使用的預設 Emoji 類型

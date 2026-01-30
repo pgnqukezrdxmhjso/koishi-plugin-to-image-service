@@ -2,7 +2,7 @@ import WNode from "koishi-plugin-w-node";
 import path from "node:path";
 import ToImageService from "../src";
 
-export async function loadService() {
+export async function loadService(config: any = {}) {
   const command = {
     action() {
       return command;
@@ -33,7 +33,10 @@ export async function loadService() {
   });
   await node.start();
 
-  const toImageService = new ToImageService({ ...ctx, node } as any, {} as any);
+  const toImageService = new ToImageService(
+    { ...ctx, node } as any,
+    config as any,
+  );
   await toImageService.start();
   await toImageService.fontManagement.loadFontDir([
     // path.resolve("../../to-image-service-font-jetbrains-mono"),

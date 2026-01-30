@@ -101,20 +101,37 @@
 <script setup lang="ts">
 import { ref, inject, watch } from "vue";
 import { ComposerTranslation } from "vue-i18n";
-import { useClipboard } from "@vueuse/core";
+import { useClipboard, useDebounceFn } from "@vueuse/core";
 import { ElMessage } from "element-plus";
 import { DocumentCopy } from "@element-plus/icons-vue";
 
-import { send } from "@koishijs/client";
+import { send, receive } from "@koishijs/client";
 import type { FontManagement } from "../../src";
 
 const _t = inject<ComposerTranslation>("t");
 const t = (p: string, ...a: any[]) => _t.apply(_t, ["FontInfo." + p, a]);
 const families = ref<FontManagement.Family[]>();
 
-send("to-image-service-get-all-family").then((data) => {
-  families.value = data || [];
-});
+let needGetAllFamily = true;
+const getAllFamily = async () => {
+  if (!needGetAllFamily) {
+    return;
+  }
+  needGetAllFamily = false;
+  try {
+    families.value = (await send("to-image-service-get-all-family")) || [];
+  } finally {
+    getAllFamily().then();
+  }
+};
+getAllFamily();
+receive(
+  "to-image-service-get-all-family-refresh",
+  useDebounceFn(() => {
+    needGetAllFamily = true;
+    getAllFamily();
+  }, 500),
+);
 
 const propelSizeUnit = (size = 0, unit = 0) => {
   if (size <= 1024 || unit >= 5) {

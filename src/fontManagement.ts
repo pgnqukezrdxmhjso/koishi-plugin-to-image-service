@@ -11,6 +11,7 @@ import {
 import FontKit from "fontkit";
 
 import type { Config } from "./config";
+import ConsoleEx from "./consoleEx";
 
 export namespace FontManagement {
   export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
@@ -59,6 +60,8 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
   defaultEmojiFont: FontManagement.Font;
 
   fontPool: Record<string, FontManagement.Font> = {};
+
+  private consoleEx: ConsoleEx = this.beanHelper.instance(ConsoleEx);
 
   async start() {
     await this._loadFontDir([this.defaultFontDir], true);
@@ -199,6 +202,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       for (const font of fonts) {
         this.fontPool[font.hash] = font;
       }
+      this.consoleEx.broadcastFamilyRefresh();
       this.fontChangeLog(fonts, "load");
     }
 

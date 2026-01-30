@@ -35,6 +35,9 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
     preferredFamilyNames?: string[],
   ) {
     options ||= {};
+    if (!options.emoji) {
+      options.emoji = this.config?.font?.satoriDefaultEmojiType;
+    }
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
       preferredFamilyNames,
