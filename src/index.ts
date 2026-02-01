@@ -65,7 +65,7 @@ class ToImageService extends Service {
 
   async htmlToImage(htmlCode: string, options?: TakumiType.RenderOptions) {
     const reactElement = toReactElement.htmlToReactElement(htmlCode);
-    return await this.takumiRenderer.render(reactElement, options);
+    return await this.takumiRenderer.render({ reactElement, options });
   }
 
   async jsxToImage(
@@ -74,7 +74,10 @@ class ToImageService extends Service {
     options?: TakumiType.RenderOptions,
   ) {
     const reactElement = await toReactElement.jsxToReactElement(jsxCode, data);
-    return await this.takumiRenderer.render(reactElement, options);
+    return await this.takumiRenderer.render({
+      reactElement,
+      options,
+    });
   }
 }
 

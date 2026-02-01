@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import EventEmitter from "node:events";
 
 import {
   BeanHelper,
@@ -11,7 +12,6 @@ import {
 import FontKit from "fontkit";
 
 import type { Config } from "./config";
-import ConsoleEx from "./consoleEx";
 
 export namespace FontManagement {
   export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
@@ -42,7 +42,20 @@ export namespace FontManagement {
     totalDataSize: number;
     members: Font[];
   }
+
+  export interface EmitterEventMap {
+    fontChange: [
+      {
+        type: "add" | "remove";
+        familyNames: string[];
+        allFamilyNames: string[];
+      },
+    ];
+  }
 }
+
+class FontManagementEventEmitter extends EventEmitter<FontManagement.EmitterEventMap> {}
+
 export class FontManagement extends BeanHelper.BeanType<Config> {
   readonly FontExt: FontManagement.FontFormat[] = [
     "ttf",
@@ -50,7 +63,6 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     "woff",
     "woff2",
   ];
-
   readonly defaultFontDir = path.resolve(__dirname, "../assets/font");
   defaultFonts: FontManagement.Font[];
   readonly defaultEmojiFontFile = path.resolve(
@@ -59,9 +71,8 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
   );
   defaultEmojiFont: FontManagement.Font;
 
+  eventEmitter = new FontManagementEventEmitter();
   fontPool: Record<string, FontManagement.Font> = {};
-
-  private consoleEx: ConsoleEx = this.beanHelper.instance(ConsoleEx);
 
   async start() {
     await this._loadFontDir([this.defaultFontDir], true);
@@ -202,7 +213,11 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       for (const font of fonts) {
         this.fontPool[font.hash] = font;
       }
-      this.consoleEx.broadcastFamilyRefresh();
+      this.eventEmitter.emit("fontChange", {
+        type: "add",
+        familyNames: this.getFamilyNames(fonts),
+        allFamilyNames: this.getFamilyNames(),
+      });
       this.fontChangeLog(fonts, "load");
     }
 
@@ -213,32 +228,35 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     for (const font of fonts) {
       delete this.fontPool[font.hash];
     }
+    this.eventEmitter.emit("fontChange", {
+      type: "remove",
+      familyNames: this.getFamilyNames(fonts),
+      allFamilyNames: this.getFamilyNames(),
+    });
     this.fontChangeLog(fonts, "remove");
   }
 
   private fontChangeLog(fonts: FontManagement.Font[], msg: string) {
     if (this.config?.font?.logInfo) {
-      const familyNames: string[] = [];
-      fonts.forEach((font) => {
-        if (!familyNames.includes(font.family)) {
-          familyNames.push(font.family);
-        }
-      });
-      this.ctx.logger.info(`${msg} font: ${familyNames.join(", ")}`);
+      this.ctx.logger.info(
+        `${msg} font: ${this.getFamilyNames(fonts).join(", ")}`,
+      );
       this.ctx.logger.info(
         `current fonts: ${this.getFamilyNames().join(", ")}`,
       );
     }
   }
 
-  getFamilyNames() {
+  getFamilyNames(
+    fonts: FontManagement.Font[] | Record<string, FontManagement.Font> = this
+      .fontPool,
+  ) {
     const familyNames: string[] = [];
-    for (const hash in this.fontPool) {
-      const font = this.fontPool[hash];
+    Object.values(fonts).forEach((font) => {
       if (!familyNames.includes(font.family)) {
         familyNames.push(font.family);
       }
-    }
+    });
     return familyNames;
   }
 
@@ -288,6 +306,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     needVariable,
     needColr,
     needDefaultEmojiFont,
+    applyConfig = true,
     preferredFamilyNames,
     fallbackSort = "familySize",
     fallbackSizeMax = 1,
@@ -296,6 +315,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     needVariable?: true;
     needColr?: true | FontManagement.ColrVer[];
     needDefaultEmojiFont?: true;
+    applyConfig?: boolean;
     preferredFamilyNames?: string[];
     fallbackSort?: "familySize";
     fallbackSizeMax?: number;
@@ -308,7 +328,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
         (!font.variable || needVariable) &&
         (!("colrVer" in font) ||
           needColr === true ||
-          needColr.includes(font.colrVer))
+          needColr?.includes(font.colrVer))
       ) {
         fonts.push(font);
       }
@@ -326,24 +346,26 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     };
 
     const res = (res = resFonts) => {
-      if (!needDefaultEmojiFont || !needColr) {
-        return res;
+      const ec = res.reduce(
+        (pv, font) =>
+          font.family.toLowerCase().includes("emoji") ||
+          font.name.toLowerCase().includes("emoji")
+            ? pv + 1
+            : pv,
+        0,
+      );
+      if (ec >= res.length) {
+        res = [...this.defaultFonts, ...res];
       }
-      if (
-        res.some(
-          (font) =>
-            font.family.toLowerCase().includes("emoji") ||
-            font.name.toLowerCase().includes("emoji"),
-        )
-      ) {
-        return res;
+      if (needDefaultEmojiFont && needColr && ec <= 0) {
+        res = [...res, this.defaultEmojiFont];
       }
-      return [...res, this.defaultEmojiFont];
+      return res;
     };
 
     pickFamilyFont(preferredFamilyNames);
 
-    if (resFonts.length < 0) {
+    if (applyConfig && resFonts.length < 0) {
       pickFamilyFont(this.config?.font?.defaultFamily);
     }
 
@@ -351,12 +373,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       return res();
     }
 
-    const familyNames: string[] = [];
-    fonts.forEach((font) => {
-      if (!familyNames.includes(font.family)) {
-        familyNames.push(font.family);
-      }
-    });
+    const familyNames = this.getFamilyNames(fonts);
 
     if (fallbackSort === "familySize" && fonts.length > 1) {
       const familySize: Record<string, number> = {};
@@ -367,7 +384,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       familyNames.sort((a, b) => familySize[b] - familySize[a]);
     }
 
-    if (familyNames.length > fallbackSizeMax) {
+    if (fallbackSizeMax > 0 && familyNames.length > fallbackSizeMax) {
       familyNames.length = fallbackSizeMax;
     }
     pickFamilyFont(familyNames);

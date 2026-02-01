@@ -23,6 +23,9 @@ export default class ConsoleEx extends BeanHelper.BeanType<Config> {
       ctx.console.addListener("to-image-service-get-all-family", () =>
         this.fontManagement.getAllFamily(true),
       );
+      this.fontManagement.eventEmitter.on("fontChange", () =>
+        ctx.console.broadcast("to-image-service-get-all-family-refresh", ""),
+      );
 
       let prod = path.resolve(__dirname, "../dist");
       if (prod.includes("external") && !prod.includes("node_modules")) {
@@ -36,14 +39,6 @@ export default class ConsoleEx extends BeanHelper.BeanType<Config> {
         dev: path.resolve(__dirname, "../client/index.ts"),
         prod,
       });
-    });
-  }
-
-  broadcastFamilyRefresh() {
-    this.ctx.inject(["console"], (ctx) => {
-      ctx.console
-        .broadcast("to-image-service-get-all-family-refresh", "")
-        .then();
     });
   }
 }

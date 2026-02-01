@@ -39,8 +39,11 @@ export async function loadService(config: any = {}) {
   );
   await toImageService.start();
   await toImageService.fontManagement.loadFontDir([
+    // "C:\\Users\\root\\Downloads\\e",
     // path.resolve("../../to-image-service-font-jetbrains-mono"),
     // path.resolve("../../to-image-service-font-source-han-mono-sc"),
+    // path.resolve("../../../data/font"),
+    // path.resolve("../assets/font"),
     // "C:\\Users\\root\\Downloads\\f\\ttf",
     // "C:\\Users\\root\\Downloads\\f\\2",
     // "C:\\Users\\root\\Downloads\\f\\AidianSignatureTi-Regular",

@@ -1,4 +1,8 @@
-import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import {
+  BeanHelper,
+  Strings,
+  Locks,
+} from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import type { ReactElement } from "react";
 import type * as TakumiType from "@takumi-rs/core";
@@ -41,12 +45,15 @@ export class SkiaCanvasRenderer extends BeanHelper.BeanType<Config> {
     await installPackage(this.ctx, this.SkiaCanvasPackageName);
   }
 
+  private getSkiaCanvasLock = Symbol("getSkiaCanvasLock");
   async getSkiaCanvas() {
     if (!this.skiaCanvas) {
-      this.skiaCanvas = await importPackage(
-        this.ctx,
-        this.SkiaCanvasPackageName,
-      );
+      await Locks.coalesce(this.getSkiaCanvasLock, async () => {
+        this.skiaCanvas = await importPackage(
+          this.ctx,
+          this.SkiaCanvasPackageName,
+        );
+      });
     }
     return this.skiaCanvas;
   }
@@ -69,7 +76,13 @@ export class SkiaCanvasRenderer extends BeanHelper.BeanType<Config> {
     }
   }
 
-  async render(source: Buffer, options: SkiaCanvasRenderer.SkiaCanvasOptions) {
+  async render({
+    source,
+    options,
+  }: {
+    source: Buffer;
+    options: SkiaCanvasRenderer.SkiaCanvasOptions;
+  }) {
     const skiaCanvas = await this.getSkiaCanvas();
     const img = await skiaCanvas.loadImage(source);
     const canvas = new skiaCanvas.Canvas(img.width, img.height);
@@ -81,10 +94,13 @@ export class SkiaCanvasRenderer extends BeanHelper.BeanType<Config> {
     );
   }
 
-  async renderByCanvg(
-    svg: string,
-    options: SkiaCanvasRenderer.SkiaCanvasOptions,
-  ) {
+  async renderByCanvg({
+    svg,
+    options,
+  }: {
+    svg: string;
+    options: SkiaCanvasRenderer.SkiaCanvasOptions;
+  }) {
     const skiaCanvas = await this.getSkiaCanvas();
     const canvas = new skiaCanvas.Canvas(1, 1);
     const ctx = canvas.getContext("2d");
@@ -112,11 +128,14 @@ export class SharpRenderer extends BeanHelper.BeanType<Config> {
     await installPackage(this.ctx, this.SharpPackageName);
   }
 
+  private getSharpLock = Symbol("getSharpLock");
   async getSharp() {
     if (!this.sharp) {
-      this.sharp = (
-        await importPackage(this.ctx, this.SharpPackageName)
-      ).default;
+      await Locks.coalesce(this.getSharpLock, async () => {
+        this.sharp = (
+          await importPackage(this.ctx, this.SharpPackageName)
+        ).default;
+      });
     }
     return this.sharp;
   }
@@ -152,18 +171,25 @@ export class ResvgRenderer extends BeanHelper.BeanType<Config> {
     await installPackage(this.ctx, this.ResvgPackageName);
   }
 
+  private getResvgLock = Symbol("getResvgLock");
   async getResvg() {
     if (!this.resvg) {
-      this.resvg = await importPackage(this.ctx, this.ResvgPackageName);
+      await Locks.coalesce(this.getResvgLock, async () => {
+        this.resvg = await importPackage(this.ctx, this.ResvgPackageName);
+      });
     }
     return this.resvg;
   }
 
-  async render(
-    svg: string,
-    options?: ResvgType.ResvgRenderOptions,
-    preferredFamilyNames?: string[],
-  ): Promise<Uint8Array> {
+  async render({
+    svg,
+    options,
+    preferredFamilyNames,
+  }: {
+    svg: string;
+    options?: ResvgType.ResvgRenderOptions;
+    preferredFamilyNames?: string[];
+  }): Promise<Uint8Array> {
     options ||= {};
     options.font ||= {};
     if (!("loadSystemFonts" in options.font)) {
@@ -201,26 +227,65 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
   readonly FontColr: FontManagement.ColrVer[] = [0];
 
   private takumi: typeof TakumiType;
+  private renderer: TakumiType.Renderer;
+
   private fontManagement = this.beanHelper.instance(FontManagement);
 
   async start() {
     await installPackage(this.ctx, this.TakumiPackageName);
+    this.fontManagement.eventEmitter.on("fontChange", () => {
+      this.renderer = null;
+    });
   }
 
   async destroy() {}
 
+  private getTakumiLock = Symbol("getTakumiLock");
   async getTakumi() {
     if (!this.takumi) {
-      this.takumi = await importPackage(this.ctx, this.TakumiPackageName);
+      await Locks.coalesce(this.getTakumiLock, async () => {
+        this.takumi = await importPackage(this.ctx, this.TakumiPackageName);
+      });
     }
     return this.takumi;
   }
 
-  async render(
-    reactElement: ReactElement<any, any>,
-    options?: TakumiType.RenderOptions,
-    preferredFamilyNames?: string[],
-  ): Promise<Uint8Array> {
+  private getRendererLock = Symbol("getRendererLock");
+  async getRenderer() {
+    if (this.renderer) {
+      return this.renderer;
+    }
+
+    await Locks.coalesce(this.getRendererLock, async () => {
+      const takumi = await this.getTakumi();
+      const fonts = this.fontManagement.getFonts({
+        formats: this.FontFormats,
+        needVariable: this.FontVariable,
+        needColr: this.FontColr,
+        needDefaultEmojiFont: true,
+        applyConfig: false,
+        fallbackSizeMax: -1,
+      });
+
+      this.renderer = new takumi.Renderer({
+        fonts: fonts.length < 1 ? undefined : fonts.map((font) => font.data),
+      });
+    });
+    return this.renderer;
+  }
+
+  async render({
+    reactElement,
+    options,
+    preferredFamilyNames,
+  }: {
+    reactElement: ReactElement<any, any>;
+    options?: TakumiType.RenderOptions;
+    preferredFamilyNames?: string[];
+  }): Promise<Uint8Array> {
+    const renderer = await this.getRenderer();
+    const node = await fromJsx(reactElement);
+
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
       needVariable: this.FontVariable,
@@ -228,10 +293,15 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
       needDefaultEmojiFont: true,
       preferredFamilyNames,
     });
-    const takumi = await this.getTakumi();
-    const renderer = new takumi.Renderer({
-      fonts: fonts.length < 1 ? undefined : fonts.map((font) => font.data),
-    });
-    return await renderer.render(await fromJsx(reactElement), options);
+
+    const fontFamily = Strings.isBlank(node.style?.fontFamily)
+      ? []
+      : node.style.fontFamily.split(",");
+    fontFamily.push(...this.fontManagement.getFamilyNames(fonts));
+
+    node.style ||= {};
+    node.style.fontFamily = fontFamily.join(",");
+
+    return await renderer.render(node, options);
   }
 }

@@ -7,6 +7,6 @@ import { loadService } from "./testBase";
   const reactElement = await toImageService.toReactElement.jsxToReactElement(
     await fs.readFile("./test.jsx", "utf8"),
   );
-  const svg = await toImageService.satoriRenderer.render(reactElement);
+  const svg = await toImageService.satoriRenderer.render({ reactElement });
   await fs.writeFile("./test.svg", svg);
 })();

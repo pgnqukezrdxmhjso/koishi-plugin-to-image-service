@@ -10,7 +10,7 @@ import fs from "node:fs/promises";
   const toImageService = await loadService(config);
 
   const html = `<div style="display: flex;flex-direction:column;background-color: #fff"><div>🍄🐙🌋🧬🧿🌙🐚🐲</div><div>🤝🏾🦸‍♂️🤺🏿🧚🫧🫂🏄‍♀️🧗</div></div>`;
-  const r = toImageService.toReactElement.htmlToReactElement(html);
+  const reactElement = toImageService.toReactElement.htmlToReactElement(html);
 
   // await toImageService.fontManagement.loadFontDir([
   //   "C:\\Users\\root\\Downloads\\e",
@@ -22,13 +22,14 @@ import fs from "node:fs/promises";
   // });
   //
   // for (let font of fonts) {
-  //   const png = await toImageService.takumiRenderer.render(r, undefined, [
-  //     font.family,
-  //   ]);
+  //   const png = await toImageService.takumiRenderer.render({
+  //     reactElement,
+  //     preferredFamilyNames: [font.family],
+  //   });
   //   await fs.writeFile(`./takumi-${font.family}.png`, png);
   // }
 
-  // const png = await toImageService.takumiRenderer.render(r);
+  // const png = await toImageService.takumiRenderer.render({ reactElement });
   // await fs.writeFile(`./takumi-.png`, png);
 
   const emojiTypes = [
@@ -43,7 +44,9 @@ import fs from "node:fs/promises";
   for (const emojiType of emojiTypes) {
     config.font.satoriDefaultEmojiType = emojiType;
     const png = await toImageService.sharpRenderer.render({
-      source: Buffer.from(await toImageService.satoriRenderer.render(r)),
+      source: Buffer.from(
+        await toImageService.satoriRenderer.render({ reactElement }),
+      ),
       format: "png",
     });
     await fs.writeFile(`satori-${emojiType}.png`, png);

@@ -1,4 +1,4 @@
-import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
+import { BeanHelper, Locks } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import { ReactElement } from "react";
 import type Satori from "satori";
@@ -22,18 +22,25 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
     this.fontManagement = beanHelper.instance(FontManagement);
   }
 
+  private getSatoriLock = Symbol("getSatoriLock");
   async getSatori() {
     if (!this.satori) {
-      this.satori = (await import("satori")).default;
+      await Locks.coalesce(this.getSatoriLock, async () => {
+        this.satori = (await import("satori")).default;
+      });
     }
     return this.satori;
   }
 
-  async render(
-    reactElement: ReactElement<any, any>,
-    options?: SatoriRenderer.VercelSatoriOptions,
-    preferredFamilyNames?: string[],
-  ) {
+  async render({
+    reactElement,
+    options,
+    preferredFamilyNames,
+  }: {
+    reactElement: ReactElement<any, any>;
+    options?: SatoriRenderer.VercelSatoriOptions;
+    preferredFamilyNames?: string[];
+  }) {
     options ||= {};
     if (!options.emoji) {
       options.emoji = this.config?.font?.satoriDefaultEmojiType;
