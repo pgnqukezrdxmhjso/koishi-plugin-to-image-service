@@ -4,6 +4,7 @@ FontInfo:
   variable: 가변
   characterCount: "글자 수: {0}"
   ligatureCount: "합자 수: {0}"
+  previewContent: aA12안녕하세요
 copy:
   copyTitle: 클릭하여 복사
   success: 복사 성공!

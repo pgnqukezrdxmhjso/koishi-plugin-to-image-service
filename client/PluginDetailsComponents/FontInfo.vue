@@ -20,22 +20,30 @@
             :name="family.family"
           >
             <template #title>
-              <div :class="$style['family-info']">
-                <span>
-                  <el-icon
-                    v-if="isSupported"
-                    color="#409efc"
-                    :size="24"
-                    :title="_t('copy.copyTitle')"
-                    @click.stop="copy(family.family)"
-                  >
-                    <DocumentCopy />
-                  </el-icon>
-                  <span :class="$style['select-all']">{{ family.family }}</span>
-                </span>
-                <span>
-                  {{ propelSizeUnit(family.totalDataSize) }}
-                </span>
+              <div :class="$style['family-title']">
+                <div :class="$style['family-info']">
+                  <span>
+                    <el-icon
+                      v-if="isSupported"
+                      color="#409efc"
+                      :size="24"
+                      :title="_t('copy.copyTitle')"
+                      @click.stop="copy(family.family)"
+                    >
+                      <DocumentCopy />
+                    </el-icon>
+                    <span :class="$style['select-all']">{{
+                      family.family
+                    }}</span>
+                  </span>
+                  <span>
+                    {{ propelSizeUnit(family.totalDataSize) }}
+                  </span>
+                </div>
+                <img
+                  v-if="previewMap?.[family.family]"
+                  :src="previewMap[family.family]"
+                />
               </div>
             </template>
             <div
@@ -107,11 +115,12 @@ import { DocumentCopy } from "@element-plus/icons-vue";
 
 import { send, receive } from "@koishijs/client";
 import type { FontManagement } from "../../src";
+import { Events } from "@koishijs/plugin-console";
 
 const _t = inject<ComposerTranslation>("t");
 const t = (p: string, ...a: any[]) => _t.apply(_t, ["FontInfo." + p, a]);
-const families = ref<FontManagement.Family[]>();
 
+const families = ref<FontManagement.Family[]>();
 let needGetAllFamily = true;
 const getAllFamily = async () => {
   if (!needGetAllFamily) {
@@ -120,9 +129,28 @@ const getAllFamily = async () => {
   needGetAllFamily = false;
   try {
     families.value = (await send("to-image-service-get-all-family")) || [];
+    await fontPreview();
   } finally {
     getAllFamily().then();
   }
+};
+const previewMap =
+  ref<Awaited<ReturnType<Events["to-image-service-font-preview"]>>>();
+const fontPreview = async () => {
+  previewMap.value = {};
+  const previewList = families.value.map((family) => {
+    return {
+      content: family.family.toLowerCase().includes("emoji")
+        ? "😄🥔👨‍👩‍👧‍👦"
+        : t("previewContent"),
+      familyName: family.family,
+    };
+  });
+  previewMap.value = await send(
+    "to-image-service-font-preview",
+    previewList,
+    26,
+  );
 };
 getAllFamily();
 receive(
@@ -160,6 +188,10 @@ watch(copied, (val) => {
   }
   :global(.el-collapse-item__content) {
     padding-bottom: 5px;
+  }
+  .family-title {
+    width: 100%;
+    text-align: end;
   }
   .family-info {
     box-sizing: border-box;

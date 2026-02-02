@@ -4,6 +4,7 @@ FontInfo:
   variable: Вариативный
   characterCount: "Символов: {0}"
   ligatureCount: "Лигатур: {0}"
+  previewContent: aA12Привет
 copy:
   copyTitle: Нажмите, чтобы скопировать
   success: Копирование успешно!

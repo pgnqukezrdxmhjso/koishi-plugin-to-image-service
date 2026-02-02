@@ -37,13 +37,13 @@ class ToImageService extends Service {
 
   toReactElement = toReactElement;
 
-  fontManagement: FontManagement = this.beanHelper.instance(FontManagement);
-  satoriRenderer: SatoriRenderer = this.beanHelper.instance(SatoriRenderer);
-  skiaCanvasRenderer: SkiaCanvasRenderer =
-    this.beanHelper.instance(SkiaCanvasRenderer);
-  sharpRenderer: SharpRenderer = this.beanHelper.instance(SharpRenderer);
-  resvgRenderer: ResvgRenderer = this.beanHelper.instance(ResvgRenderer);
-  takumiRenderer: TakumiRenderer = this.beanHelper.instance(TakumiRenderer);
+  fontManagement = this.beanHelper.instance(FontManagement);
+  consoleEx = this.beanHelper.instance(ConsoleEx);
+  satoriRenderer = this.beanHelper.instance(SatoriRenderer);
+  skiaCanvasRenderer = this.beanHelper.instance(SkiaCanvasRenderer);
+  sharpRenderer = this.beanHelper.instance(SharpRenderer);
+  resvgRenderer = this.beanHelper.instance(ResvgRenderer);
+  takumiRenderer = this.beanHelper.instance(TakumiRenderer);
 
   constructor(
     private _ctx: Context,
@@ -51,7 +51,6 @@ class ToImageService extends Service {
   ) {
     super(_ctx, serviceName);
     this.beanHelper.setCtx(_ctx, _config);
-    this.beanHelper.instance(ConsoleEx);
 
     _ctx.on("dispose", async () => {
       await this.beanHelper.destroy();

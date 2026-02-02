@@ -4,6 +4,7 @@ FontInfo:
   variable: バリアブル
   characterCount: "文字数: {0}"
   ligatureCount: "合字数: {0}"
+  previewContent: aA12こんにちは
 copy:
   copyTitle: クリックしてコピー
   success: コピーに成功しました！

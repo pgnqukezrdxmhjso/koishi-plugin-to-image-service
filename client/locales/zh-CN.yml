@@ -4,6 +4,7 @@ FontInfo:
   variable: 可变
   characterCount: "字符数: {0}"
   ligatureCount: "连字数: {0}"
+  previewContent: aA12你好
 copy:
   copyTitle: 点击复制
   success: 复制成功！

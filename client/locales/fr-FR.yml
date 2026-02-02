@@ -4,6 +4,7 @@ FontInfo:
   variable: Variable
   characterCount: "Caractères : {0}"
   ligatureCount: "Ligatures : {0}"
+  previewContent: aA12Bonjour
 copy:
   copyTitle: Cliquer pour copier
   success: Copié avec succès !
