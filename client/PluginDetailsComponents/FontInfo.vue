@@ -206,6 +206,9 @@ watch(copied, (val) => {
     .select-all {
       user-select: all;
     }
+    :global(.el-icon) {
+      margin-right: 3px;
+    }
   }
   .font-info {
     padding: 0 15px 5px;

@@ -1,6 +1,6 @@
 import { BeanHelper, Locks } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import type Satori from "satori";
 
 import { renderSvg, VercelSatoriOptions as SatoriOptions } from "./satori/og";

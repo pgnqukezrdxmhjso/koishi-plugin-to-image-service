@@ -1,13 +1,14 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "cd ../../ && yarn build to-image-service",
     "pub": "cd ../../ && yarn pub to-image-service",
-    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service"
+    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service",
+    "up": "npx npm-check -u --no-color"
   },
   "files": [
     "lib",
@@ -44,25 +45,29 @@
     "@koishijs/plugin-console": "^5.30.11",
     "koishi": "^4.18.10"
   },
+  "peerDependenciesMeta": {
+    "@koishijs/plugin-console": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@takumi-rs/helpers": "^0.66.13",
     "canvg": "^4.0.3",
     "fontkit": "^2.0.4",
-    "html-react-parser": "^5.2.12",
+    "html-react-parser": "^5.2.15",
     "jsdom": "26.1.0",
-    "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.0.10",
-    "react": "^19.2.3",
+    "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.0.12",
+    "react": "^19.2.4",
     "satori": "^0.19.1",
     "sucrase": "^3.35.1"
   },
   "devDependencies": {
     "@koishijs/client": "^5.30.11",
-    "@napi-rs/canvas": "^0.1.88",
+    "@napi-rs/canvas": "^0.1.89",
     "@resvg/resvg-js": "^2.6.2",
     "@takumi-rs/core": "^0.66.13",
-    "@types/fontkit": "^2",
-    "@types/jsdom": "^27",
-    "@types/react": "^19",
+    "@types/fontkit": "^2.0.8",
+    "@types/react": "^19.2.10",
     "koishi-plugin-w-node": "^1.0.1",
     "sharp": "^0.34.5"
   },
