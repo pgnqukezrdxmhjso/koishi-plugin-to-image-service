@@ -365,7 +365,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
 
     pickFamilyFont(preferredFamilyNames);
 
-    if (applyConfig && resFonts.length < 0) {
+    if (applyConfig && resFonts.length < 1) {
       pickFamilyFont(this.config?.font?.defaultFamily);
     }
 
