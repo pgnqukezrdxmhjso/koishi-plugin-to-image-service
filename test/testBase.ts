@@ -24,6 +24,7 @@ export async function loadService(config: any = {}) {
     on: () => 0,
     logger: {
       error: console.error,
+      info: console.log,
     },
     inject() {},
   };

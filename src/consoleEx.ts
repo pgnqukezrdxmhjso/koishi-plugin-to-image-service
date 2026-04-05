@@ -1,5 +1,4 @@
 import path from "node:path";
-
 // noinspection ES6UnusedImports
 import {} from "@koishijs/plugin-console";
 import { BeanHelper } from "koishi-plugin-rzgtboeyndxsklmq-commons";
@@ -65,9 +64,10 @@ export default class ConsoleEx extends BeanHelper.BeanType<Config> {
   ) {
     const imgMap: Record<string, Uint8Array> = {};
     for (const preview of previewList) {
-      const html = `<div style="font-size: ${fontSize}px;font-family: ${preview.familyName}">${preview.content}</div>`;
-      imgMap[preview.familyName] = await this.takumiRenderer.render({
+      const html = `<div style="font-size: ${fontSize}px">${preview.content}</div>`;
+      imgMap[preview.familyName] = await this.takumiRenderer.renderOneFont({
         reactElement: toReactElement.htmlToReactElement(html),
+        familyName: preview.familyName,
       });
     }
     return imgMap;

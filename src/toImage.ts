@@ -264,6 +264,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
         needColr: this.FontColr,
         needDefaultEmojiFont: true,
         applyConfig: false,
+        allowFallbackEmoji: true,
         fallbackSizeMax: -1,
       });
 
@@ -284,7 +285,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     preferredFamilyNames?: string[];
   }): Promise<Uint8Array> {
     const renderer = await this.getRenderer();
-    const node = await fromJsx(reactElement);
+    const { node } = await fromJsx(reactElement);
 
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
@@ -302,6 +303,34 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     node.style ||= {};
     node.style.fontFamily = fontFamily.join(",");
 
+    return await renderer.render(node, options);
+  }
+
+  async renderOneFont({
+    reactElement,
+    options,
+    familyName,
+  }: {
+    reactElement: ReactElement<any, any>;
+    options?: TakumiType.RenderOptions;
+    familyName: string;
+  }) {
+    const takumi = await this.getTakumi();
+    const fonts = this.fontManagement.getFonts({
+      formats: this.FontFormats,
+      needVariable: this.FontVariable,
+      needColr: this.FontColr,
+      preferredFamilyNames: [familyName],
+      applyConfig: false,
+      needFallback: false,
+      needDefaultDefaultFonts: false,
+      allowOnlyEmoji: true,
+    });
+    const renderer = new takumi.Renderer({
+      fonts: fonts.length < 1 ? undefined : fonts.map((font) => font.data),
+    });
+
+    const { node } = await fromJsx(reactElement);
     return await renderer.render(node, options);
   }
 }

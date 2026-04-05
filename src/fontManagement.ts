@@ -29,6 +29,7 @@ export namespace FontManagement {
     italic: boolean;
     variable: boolean;
     colrVer?: FontManagement.ColrVer;
+    emoji: boolean;
     characterCount: number;
     ligatureCount: number;
     filePath: string;
@@ -129,15 +130,19 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
         }
       });
     });
+    const family =
+      font.getName("preferredFamily", "") || font.getName("fontFamily", "");
     return {
-      family:
-        font.getName("preferredFamily", "") || font.getName("fontFamily", ""),
+      family,
       name: font.fullName,
       weight: (font["OS/2"]?.usWeightClass || 400) as any,
       italic: font["OS/2"]?.fsSelection?.italic || font.italicAngle !== 0,
       variable:
         font.variationAxes && Object.keys(font.variationAxes).length > 0,
       ...("COLR" in font ? { colrVer: font["COLR"]?.["version"] || 0 } : {}),
+      emoji:
+        family.toLowerCase().includes("emoji") ||
+        font.fullName.toLowerCase().includes("emoji"),
       characterCount: font.characterSet.length,
       ligatureCount,
       filePath: fontFile.filePath,
@@ -305,20 +310,28 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     formats,
     needVariable,
     needColr,
-    needDefaultEmojiFont,
-    applyConfig = true,
     preferredFamilyNames,
+    applyConfig = true,
+    needFallback = true,
+    allowFallbackEmoji,
     fallbackSort = "familySize",
     fallbackSizeMax = 1,
+    needDefaultDefaultFonts = true,
+    allowOnlyEmoji,
+    needDefaultEmojiFont,
   }: {
     formats: FontManagement.FontFormat[];
     needVariable?: true;
     needColr?: true | FontManagement.ColrVer[];
-    needDefaultEmojiFont?: true;
-    applyConfig?: boolean;
     preferredFamilyNames?: string[];
+    applyConfig?: boolean;
+    needFallback?: boolean;
+    allowFallbackEmoji?: boolean;
     fallbackSort?: "familySize";
     fallbackSizeMax?: number;
+    needDefaultDefaultFonts?: boolean;
+    allowOnlyEmoji?: true;
+    needDefaultEmojiFont?: true;
   }) {
     const fonts: FontManagement.Font[] = [];
     for (const hash in this.fontPool) {
@@ -346,15 +359,8 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     };
 
     const res = (res = resFonts) => {
-      const ec = res.reduce(
-        (pv, font) =>
-          font.family.toLowerCase().includes("emoji") ||
-          font.name.toLowerCase().includes("emoji")
-            ? pv + 1
-            : pv,
-        0,
-      );
-      if (ec >= res.length) {
+      const ec = res.reduce((pv, font) => (font.emoji ? pv + 1 : pv), 0);
+      if (!allowOnlyEmoji && ec >= res.length) {
         res = [...this.defaultFonts, ...res];
       }
       if (needDefaultEmojiFont && needColr && ec <= 0) {
@@ -373,23 +379,29 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       return res();
     }
 
-    const familyNames = this.getFamilyNames(fonts);
-
-    if (fallbackSort === "familySize" && fonts.length > 1) {
-      const familySize: Record<string, number> = {};
-      for (const font of fonts) {
-        familySize[font.family] ||= 0;
-        familySize[font.family] += font.dataSize;
+    if (needFallback) {
+      let fallbackFonts = fonts;
+      if (!allowFallbackEmoji) {
+        fallbackFonts = fallbackFonts.filter((f) => !f.emoji);
       }
-      familyNames.sort((a, b) => familySize[b] - familySize[a]);
+      const familyNames = this.getFamilyNames(fallbackFonts);
+
+      if (fallbackSort === "familySize" && fallbackFonts.length > 1) {
+        const familySize: Record<string, number> = {};
+        for (const font of fallbackFonts) {
+          familySize[font.family] ||= 0;
+          familySize[font.family] += font.dataSize;
+        }
+        familyNames.sort((a, b) => familySize[b] - familySize[a]);
+      }
+
+      if (fallbackSizeMax > 0 && familyNames.length > fallbackSizeMax) {
+        familyNames.length = fallbackSizeMax;
+      }
+      pickFamilyFont(familyNames);
     }
 
-    if (fallbackSizeMax > 0 && familyNames.length > fallbackSizeMax) {
-      familyNames.length = fallbackSizeMax;
-    }
-    pickFamilyFont(familyNames);
-
-    if (resFonts.length < 1) {
+    if (needDefaultDefaultFonts && resFonts.length < 1) {
       return res(this.defaultFonts);
     }
     return res();
