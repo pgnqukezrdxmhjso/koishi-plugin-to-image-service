@@ -7,6 +7,8 @@
   "scripts": {
     "bump": "cd ../../ && yarn bump -2 to-image-service",
     "build": "cd ../../ && yarn build to-image-service",
+    "pub": "cd ../../ && yarn pub to-image-service",
+    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service",
     "up": "npx npm-check -u --no-color"
   },
   "files": [
