@@ -139,7 +139,11 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       italic: font["OS/2"]?.fsSelection?.italic || font.italicAngle !== 0,
       variable:
         font.variationAxes && Object.keys(font.variationAxes).length > 0,
-      ...("COLR" in font ? { colrVer: font["COLR"]?.["version"] || 0 } : {}),
+      ...("COLR" in font
+        ? {
+            colrVer: (font["COLR"]?.["version"] as FontManagement.ColrVer) || 0,
+          }
+        : {}),
       emoji:
         family.toLowerCase().includes("emoji") ||
         font.fullName.toLowerCase().includes("emoji"),
