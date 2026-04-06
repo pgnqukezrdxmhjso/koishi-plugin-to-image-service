@@ -6,7 +6,7 @@ import EventEmitter from "node:events";
 import {
   BeanHelper,
   Files,
-  Strings,
+  Objects,
 } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import FontKit from "fontkit";
@@ -86,12 +86,11 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
 
   async loadConfig() {
     const config = this.config.font;
-    if (Strings.isNotBlank(config?.dir)) {
-      await this.loadFontDir([
-        path.isAbsolute(config.dir)
-          ? config.dir
-          : path.resolve(this.ctx.baseDir, config.dir),
-      ]);
+    if (Objects.isNotNull(config?.dir)) {
+      const dir = path.isAbsolute(config.dir)
+        ? config.dir
+        : path.resolve(this.ctx.baseDir, config.dir);
+      await this.loadFontDir([dir]);
     }
   }
 

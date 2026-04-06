@@ -1,0 +1,14 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  publish_npm:
+    permissions:
+      id-token: write
+      contents: read
+    uses: pgnqukezrdxmhjso/koishi-plugin-rzgtboeyndxsklmq-commons/.github/workflows/publish_npm.yml@3dcb1faa5b79a92083d788211c1a6c799f883e9a

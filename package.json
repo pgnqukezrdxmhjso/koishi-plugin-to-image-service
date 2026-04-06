@@ -1,14 +1,12 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "bump": "cd ../../ && yarn bump -2 to-image-service",
+    "bump": "cd ../../ && yarn bump -3 to-image-service",
     "build": "cd ../../ && yarn build to-image-service",
-    "pub": "cd ../../ && yarn pub to-image-service",
-    "fastPub": "cd ../../ && yarn bump -3 to-image-service && yarn build to-image-service && yarn pub to-image-service",
     "up": "npx npm-check -u --no-color"
   },
   "files": [
@@ -57,7 +55,7 @@
     "fontkit": "^2.0.4",
     "html-react-parser": "^5.2.15",
     "jsdom": "26.1.0",
-    "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.1.0",
+    "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.1.2",
     "react": "^19.2.4",
     "satori": "^0.19.1",
     "sucrase": "^3.35.1"
