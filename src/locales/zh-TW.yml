@@ -1,7 +1,9 @@
 _config:
+  logInfo: 除錯資訊
   font:
     _prompt: 支援 ttf、otf、woff 和 woff2 格式。請優先使用前兩種，部分圖形庫不支援 woff 或可變字體。Takumi 支援 COLRv0 字體。未載入字體時使用內建的 釘釘進步體 (Regular) 與 TwemojiCOLRv0。
-    logInfo: 除錯資訊
     dir: 字型目錄
     defaultFamily: 預設字型族
-    satoriDefaultEmojiType: Satori 使用的預設 Emoji 類型
+    defaultEmojiType: 預設 Emoji 類型
+    takumiUseFontEmoji: takumi 使用字型 Emoji
+    CDNNode: 資源 CDN 節點 (Emoji 圖片)

@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import { loadService } from "./testBase";
+import { loadService } from "../testBase";
 
 (async () => {
   const toImageService = await loadService();

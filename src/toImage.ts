@@ -2,10 +2,14 @@ import {
   BeanHelper,
   Strings,
   Locks,
+  Objects,
 } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import type { ReactElement } from "react";
-import type * as TakumiType from "@takumi-rs/core";
+import TakumiType from "@takumi-rs/core";
+import type { Node as TakumiNode } from "@takumi-rs/helpers";
+import { extractResourceUrls } from "@takumi-rs/helpers";
+import { extractEmojis } from "@takumi-rs/helpers/emoji";
 import { fromJsx } from "@takumi-rs/helpers/jsx";
 
 import type SharpType from "sharp";
@@ -17,7 +21,7 @@ import { JSDOM } from "jsdom";
 
 import type { Config } from "./config";
 import { FontManagement } from "./fontManagement";
-import { importPackage, installPackage } from "./util";
+import { importPackage, installPackage, replaceCDN } from "./util";
 
 export namespace SkiaCanvasRenderer {
   export type SkiaCanvasOptions =
@@ -132,9 +136,9 @@ export class SharpRenderer extends BeanHelper.BeanType<Config> {
   async getSharp() {
     if (!this.sharp) {
       await Locks.coalesce(this.getSharpLock, async () => {
-        this.sharp = (
-          await importPackage(this.ctx, this.SharpPackageName)
-        ).default;
+        this.sharp = (await importPackage(this.ctx, this.SharpPackageName))[
+          "default"
+        ];
       });
     }
     return this.sharp;
@@ -275,6 +279,83 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     return this.renderer;
   }
 
+  async loadNodeResource(
+    node: TakumiNode,
+    fetchedResources?: TakumiType.ImageSource[],
+  ) {
+    fetchedResources ||= [];
+    const resourceUrls = extractResourceUrls(node).filter((url) =>
+      fetchedResources.every((r) => r.src !== url),
+    );
+
+    if (resourceUrls?.length < 1) {
+      return fetchedResources;
+    }
+
+    await Promise.all(
+      resourceUrls.map(async (src) => {
+        try {
+          const res = await this.ctx.http.get(src, {
+            headers: { Referer: new URL(src).origin },
+            responseType: "arraybuffer",
+          });
+          fetchedResources.push({ src, data: res });
+        } catch (e) {
+          if (this.config?.logInfo) {
+            this.ctx.logger.error(src, e);
+          }
+        }
+      }),
+    );
+
+    return fetchedResources;
+  }
+
+  private async _render({
+    node,
+    renderer,
+    options,
+    useFontEmoji = true,
+  }: {
+    node: TakumiType.Node;
+    renderer: TakumiType.Renderer;
+    options: TakumiType.RenderOptions;
+    useFontEmoji?: boolean;
+  }) {
+    if (useFontEmoji && !this.config?.font?.takumiUseFontEmoji) {
+      node = extractEmojis(
+        node,
+        this.config?.font?.defaultEmojiType || "twemoji",
+      );
+      await Objects.deepForEach(
+        node,
+        async (n: TakumiNode) => {
+          if (n?.type !== "image" || typeof n?.src !== "string") {
+            return;
+          }
+          n.src = replaceCDN(n.src, this.config?.font?.CDNNode);
+        },
+        {
+          onValue: false,
+        },
+      );
+    }
+
+    options ||= {};
+    options.fetchedResources = await this.loadNodeResource(
+      node,
+      options.fetchedResources,
+    );
+    try {
+      return await renderer.render(node, options);
+    } catch (e) {
+      if (e instanceof Error && e.stack.endsWith(e.message)) {
+        throw new Error(e.message);
+      }
+      throw e;
+    }
+  }
+
   async render({
     reactElement,
     options,
@@ -303,7 +384,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     node.style ||= {};
     node.style.fontFamily = fontFamily.join(",");
 
-    return await renderer.render(node, options);
+    return this._render({ node, renderer, options });
   }
 
   async renderOneFont({
@@ -323,7 +404,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
       preferredFamilyNames: [familyName],
       applyConfig: false,
       needFallback: false,
-      needDefaultDefaultFonts: false,
+      needDefaultFonts: false,
       allowOnlyEmoji: true,
     });
     const renderer = new takumi.Renderer({
@@ -331,6 +412,6 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     });
 
     const { node } = await fromJsx(reactElement);
-    return await renderer.render(node, options);
+    return this._render({ node, renderer, options, useFontEmoji: false });
   }
 }

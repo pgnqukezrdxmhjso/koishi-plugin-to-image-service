@@ -1,7 +1,9 @@
 _config:
+  logInfo: Отладочная информация
   font:
     _prompt: Поддержка ttf, otf, woff, woff2. Рекомендуется ttf/otf (некоторые библиотеки не поддерживают woff или вариативные шрифты). Takumi поддерживает COLRv0. По умолчанию используются DingTalkJinBuTi-Regular и TwemojiCOLRv0.
-    logInfo: Отладочная информация
     dir: Директория шрифтов
     defaultFamily: Семейство шрифтов по умолчанию
-    satoriDefaultEmojiType: Тип эмодзи по умолчанию, используемый Satori
+    defaultEmojiType: Тип Emoji по умолчанию
+    takumiUseFontEmoji: takumi использует шрифтовые Emoji
+    CDNNode: CDN-узел ресурсов (изображения Emoji)

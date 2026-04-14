@@ -2,24 +2,63 @@ import { BeanHelper, Locks } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import type { ReactElement } from "react";
 import type Satori from "satori";
+import type { SatoriOptions } from "satori";
 
-import { renderSvg, VercelSatoriOptions as SatoriOptions } from "./satori/og";
 import { FontManagement } from "./fontManagement";
 import type { Config } from "./config";
+import { replaceCDN } from "./util";
 
 export namespace SatoriRenderer {
-  export type VercelSatoriOptions = SatoriOptions;
+  export type EmojiType = keyof typeof SatoriRenderer.emojiApis;
+  export type VercelSatoriOptions = {
+    /**
+     * The width of the image.
+     *
+     * @type {number}
+     */
+    width?: number;
+    /**
+     * The height of the image.
+     *
+     * @type {number}
+     */
+    height?: number;
+    /**
+     * Display debug information on the image.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    debug?: boolean;
+    /**
+     * A list of fonts to use.
+     *
+     * @type {{ data: ArrayBuffer; name: string; weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900; style?: 'normal' | 'italic' }[]}
+     * @default Noto Sans Latin Regular.
+     */
+    fonts?: SatoriOptions["fonts"];
+    /**
+     * Using a specific Emoji style. Defaults to `twemoji`.
+     *
+     * @type {EmojiType}
+     * @default 'twemoji'
+     */
+    emoji?: EmojiType;
+  };
 }
 
 export class SatoriRenderer extends BeanHelper.BeanType<Config> {
   readonly FontFormats: FontManagement.FontFormat[] = ["ttf", "otf", "woff"];
 
+  private U200D = String.fromCharCode(0x200d);
+  private UFE0Fg = /\uFE0F/g;
+
   private satori: typeof Satori;
-  private fontManagement: FontManagement;
+  private fontManagement = this.beanHelper.instance(FontManagement);
+  assetCache = new Map<string, any>();
 
   constructor(beanHelper: BeanHelper<Config>) {
     super(beanHelper);
-    this.fontManagement = beanHelper.instance(FontManagement);
   }
 
   private getSatoriLock = Symbol("getSatoriLock");
@@ -30,6 +69,85 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
       });
     }
     return this.satori;
+  }
+
+  static emojiApis = {
+    twemoji: (code: string) =>
+      `https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/${code.toLowerCase()}.svg`,
+    openmoji: "https://cdn.jsdelivr.net/npm/@svgmoji/openmoji@2.0.0/svg/",
+    blobmoji: "https://cdn.jsdelivr.net/npm/@svgmoji/blob@2.0.0/svg/",
+    noto: (code: string) =>
+      `https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@v2.051/svg/emoji_u${code.toLowerCase().replaceAll("-", "_")}.svg`,
+    fluent: (code: string) =>
+      "https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/" +
+      code.toLowerCase() +
+      "_color.svg",
+    fluentFlat: (code: string) =>
+      "https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/" +
+      code.toLowerCase() +
+      "_flat.svg",
+  };
+
+  private loadEmoji(code: string, type: SatoriRenderer.EmojiType) {
+    const api = SatoriRenderer.emojiApis[type];
+    let src =
+      typeof api === "function" ? api(code) : `${api}${code.toUpperCase()}.svg`;
+    src = replaceCDN(src, this.config?.font?.CDNNode);
+    try {
+      return this.ctx.http.get(src, {
+        headers: { Referer: new URL(src).origin },
+        responseType: "arraybuffer",
+      });
+    } catch (e) {
+      if (this.config?.logInfo) {
+        this.ctx.logger.error(src, e);
+      }
+    }
+  }
+
+  private getIconCode(char: string) {
+    const unicodeSurrogates =
+      char.indexOf(this.U200D) < 0 ? char.replace(this.UFE0Fg, "") : char;
+    let r: string[] = [];
+    let p = 0;
+    for (let i = 0; i < unicodeSurrogates.length; i++) {
+      const c = unicodeSurrogates.charCodeAt(i);
+      if (p) {
+        r.push((65536 + ((p - 55296) << 10) + (c - 56320)).toString(16));
+        p = 0;
+      } else if (55296 <= c && c <= 56319) {
+        p = c;
+      } else {
+        r.push(c.toString(16));
+      }
+    }
+    return r.join("-");
+  }
+
+  loadDynamicAsset(emoji: SatoriRenderer.EmojiType) {
+    return async (code: string, text: string) => {
+      if (code !== "emoji") {
+        return [];
+      }
+
+      const key = `${emoji}-${code}-${text}`;
+      const cache = this.assetCache.get(key);
+      if (cache) return cache;
+
+      let asset: string;
+      try {
+        asset =
+          `data:image/svg+xml;base64,` +
+          Buffer.from(
+            await this.loadEmoji(this.getIconCode(text), emoji),
+          ).toString("base64");
+      } catch (e) {
+        asset = `data:image/svg+xml;base64,` + btoa("does not exist");
+      }
+
+      this.assetCache.set(key, asset || []);
+      return asset;
+    };
   }
 
   async render({
@@ -43,7 +161,7 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
   }) {
     options ||= {};
     if (!options.emoji) {
-      options.emoji = this.config?.font?.satoriDefaultEmojiType;
+      options.emoji = this.config?.font?.defaultEmojiType || "twemoji";
     }
     const fonts = this.fontManagement.getFonts({
       formats: this.FontFormats,
@@ -60,6 +178,14 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
         });
       }
     }
-    return renderSvg(await this.getSatori(), options, reactElement);
+
+    const satori = await this.getSatori();
+    return await satori(reactElement, {
+      width: options.width,
+      height: options.height,
+      debug: options.debug,
+      fonts: options.fonts,
+      loadAdditionalAsset: this.loadDynamicAsset(options.emoji),
+    });
   }
 }

@@ -6,7 +6,7 @@ Generate images using a non-puppeteer solution
 
 ---
 
-[example](https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service/blob/master/test/toPng.ts)
+[example](https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service/blob/master/test/base/toPng.ts)
 
 ---
 

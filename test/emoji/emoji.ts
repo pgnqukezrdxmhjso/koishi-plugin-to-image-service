@@ -3,9 +3,10 @@ import fs from "node:fs/promises";
 
 (async () => {
   const config = {
+    logInfo: true,
     font: {
-      satoriDefaultEmojiType: null,
-      logInfo: true,
+      takumiUseFontEmoji: true,
+      defaultEmojiType: "twemoji",
     },
   };
   const toImageService = await loadService(config);
@@ -32,23 +33,30 @@ import fs from "node:fs/promises";
   const png = await toImageService.takumiRenderer.render({ reactElement });
   await fs.writeFile(`./takumi-.png`, png);
 
-  // const emojiTypes = [
-  //   "twemoji",
-  //   "openmoji",
-  //   "blobmoji",
-  //   "noto",
-  //   "fluent",
-  //   "fluentFlat",
-  // ];
-  //
-  // for (const emojiType of emojiTypes) {
-  //   config.font.satoriDefaultEmojiType = emojiType;
-  //   const png = await toImageService.sharpRenderer.render({
-  //     source: Buffer.from(
-  //       await toImageService.satoriRenderer.render({ reactElement }),
-  //     ),
-  //     format: "png",
-  //   });
-  //   await fs.writeFile(`satori-${emojiType}.png`, png);
-  // }
+  const emojiTypes = [
+    "twemoji",
+    "openmoji",
+    "blobmoji",
+    "noto",
+    "fluent",
+    "fluentFlat",
+  ];
+
+  config.font.takumiUseFontEmoji = false;
+
+  for (const emojiType of emojiTypes) {
+    config.font.defaultEmojiType = emojiType;
+    const png = await toImageService.sharpRenderer.render({
+      source: Buffer.from(
+        await toImageService.satoriRenderer.render({ reactElement }),
+      ),
+      format: "png",
+    });
+    await fs.writeFile(`satori-${emojiType}.png`, png);
+
+    const png1 = await toImageService.takumiRenderer.render({
+      reactElement,
+    });
+    await fs.writeFile(`./takumi--svg-${emojiType}.png`, png1);
+  }
 })();

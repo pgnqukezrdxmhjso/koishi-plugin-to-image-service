@@ -5,10 +5,11 @@
     trigger="click"
     :popper-class="$style['popover-container']"
     :teleported="false"
+    :disabled="noFont"
   >
     <template #reference>
-      <el-badge :value="families?.length || 0" type="primary">
-        <el-button>{{ t("fontInfo") }}</el-button>
+      <el-badge :value="families?.length || 0" type="primary" :disabled="true">
+        <el-button :disabled="noFont">{{ t("fontInfo") }}</el-button>
       </el-badge>
     </template>
     <template #default>
@@ -107,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch } from "vue";
+import { ref, inject, watch, computed } from "vue";
 import { ComposerTranslation } from "vue-i18n";
 import { useClipboard, useDebounceFn } from "@vueuse/core";
 import { ElMessage } from "element-plus";
@@ -121,6 +122,7 @@ const _t = inject<ComposerTranslation>("t");
 const t = (p: string, ...a: any[]) => _t.apply(_t, ["FontInfo." + p, a]);
 
 const families = ref<FontManagement.Family[]>();
+const noFont = computed(() => (families.value?.length || 0) === 0);
 let needGetAllFamily = true;
 const getAllFamily = async () => {
   if (!needGetAllFamily) {

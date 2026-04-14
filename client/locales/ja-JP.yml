@@ -8,3 +8,5 @@ FontInfo:
 copy:
   copyTitle: クリックしてコピー
   success: コピーに成功しました！
+CDNNodeSpeed:
+  test: CDN速度テスト

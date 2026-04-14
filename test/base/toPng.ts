@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { loadService } from "./testBase";
+import { loadService } from "../testBase";
 import { Test } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 import test = Test.test;
 
@@ -11,6 +11,17 @@ import test = Test.test;
   const jsx = await fs.readFile("./test.jsx", "utf8");
 
   await test(count, [
+    {
+      name: "default",
+      fn: async () => {
+        // Additionally
+        // const png = await toImageService.htmlToImage(html);
+
+        // In reality, this encapsulates (jsx|html)ToReactElement and takumi
+        const png = await toImageService.jsxToImage(jsx);
+        save && (await fs.writeFile("./jsxToPng-default.png", png));
+      },
+    },
     {
       name: "satori",
       fn: async () => {

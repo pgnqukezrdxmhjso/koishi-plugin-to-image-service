@@ -5,13 +5,17 @@
         <ruby>toImage<rt>Service</rt></ruby>
       </div>
     </template>
-    <FontInfo />
+    <el-space direction="vertical">
+      <FontInfo />
+      <CDNNodeSpeed />
+    </el-space>
   </DragContainer>
 </template>
 
 <script setup lang="ts">
 import DragContainer from "koishi-plugin-rzgtboeyndxsklmq-commons/vue/components/DragContainer.vue";
 import FontInfo from "./FontInfo.vue";
+import CDNNodeSpeed from "./CDNNodeSpeed.vue";
 </script>
 
 <style module lang="scss">

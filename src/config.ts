@@ -1,31 +1,35 @@
 import { Schema } from "koishi";
-import { EmojiType } from "./satori/emoji";
+import { SatoriRenderer } from "./toSvg";
+import { CDNNodes, CDNNode } from "./util";
 
 export interface Config {
+  logInfo: boolean;
   font: {
-    logInfo: boolean;
     dir: string;
     defaultFamily: string[];
-    satoriDefaultEmojiType: EmojiType;
+    defaultEmojiType: SatoriRenderer.EmojiType;
+    takumiUseFontEmoji: boolean;
+    CDNNode: CDNNode;
   };
 }
 
 export const Config: Schema<Config> = Schema.object({
+  logInfo: Schema.boolean().default(false),
   font: Schema.object({
     _prompt: Schema.never(),
-    logInfo: Schema.boolean().default(true),
     dir: Schema.path({
       filters: ["directory"],
     }),
     defaultFamily: Schema.array(String),
-    satoriDefaultEmojiType: Schema.union([
-      "twemoji",
-      "openmoji",
-      "blobmoji",
-      "noto",
-      "fluent",
-      "fluentFlat",
-    ]).default("twemoji"),
+    defaultEmojiType: Schema.union(
+      Object.keys(SatoriRenderer.emojiApis) as SatoriRenderer.EmojiType[],
+    ).default(
+      Object.keys(SatoriRenderer.emojiApis)[0] as SatoriRenderer.EmojiType,
+    ),
+    takumiUseFontEmoji: Schema.boolean().default(true),
+    CDNNode: Schema.union(Object.keys(CDNNodes) as CDNNode[]).default(
+      Object.keys(CDNNodes)[0] as CDNNode,
+    ),
   }),
 }).i18n(
   (!("," + Object.keys(process.env).join(",").toLowerCase()).includes(",koishi")

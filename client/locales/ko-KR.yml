@@ -8,3 +8,5 @@ FontInfo:
 copy:
   copyTitle: 클릭하여 복사
   success: 복사 성공!
+CDNNodeSpeed:
+  test: CDN 속도 테스트

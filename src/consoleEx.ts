@@ -7,10 +7,12 @@ import { Config } from "./config";
 import { FontManagement } from "./fontManagement";
 import { TakumiRenderer } from "./toImage";
 import { toReactElement } from "./toReactElement";
+import { CDNNodeSpeed, NodeSpeed } from "./util";
 
 declare module "@koishijs/plugin-console" {
   interface Events {
-    "to-image-service-get-all-family"(): FontManagement.Family[];
+    "to-image-service-cdn-node-speed": () => Promise<NodeSpeed[]>;
+    "to-image-service-get-all-family": () => FontManagement.Family[];
     "to-image-service-font-preview": (
       ...args: Parameters<(typeof ConsoleEx.prototype)["fontPreview"]>
     ) => Promise<Record<string, string>>;
@@ -23,6 +25,10 @@ export default class ConsoleEx extends BeanHelper.BeanType<Config> {
 
   start() {
     this.ctx.inject(["console"], (ctx) => {
+      ctx.console.addListener("to-image-service-cdn-node-speed", () =>
+        CDNNodeSpeed(this.ctx.http),
+      );
+
       ctx.console.addListener("to-image-service-get-all-family", () =>
         this.fontManagement.getAllFamily(true),
       );

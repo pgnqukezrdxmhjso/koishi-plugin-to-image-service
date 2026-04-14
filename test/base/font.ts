@@ -1,4 +1,4 @@
-import { loadService } from "./testBase";
+import { loadService } from "../testBase";
 
 (async () => {
   const toImageService = await loadService();

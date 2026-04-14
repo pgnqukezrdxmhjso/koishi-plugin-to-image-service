@@ -1,7 +1,9 @@
 _config:
+  logInfo: Informations de débogage
   font:
     _prompt: Prend en charge ttf, otf, woff et woff2. Utilisez ttf ou otf en priorité car certaines bibliothèques ne gèrent pas woff ou les polices variables. Takumi supporte le format COLRv0. Utilise par défaut DingTalkJinBuTi-Regular et TwemojiCOLRv0.
-    logInfo: Informations de débogage
     dir: Répertoire des polices
     defaultFamily: Famille de polices par défaut
-    satoriDefaultEmojiType: Type d'emoji par défaut utilisé par Satori
+    defaultEmojiType: Type d'Emoji par défaut
+    takumiUseFontEmoji: takumi utilise les polices Emoji
+    CDNNode: Nœud CDN de ressources (Images Emoji)

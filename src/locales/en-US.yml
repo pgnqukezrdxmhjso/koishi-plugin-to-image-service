@@ -1,7 +1,9 @@
 _config:
+  logInfo: Debug Info
   font:
     _prompt: Supports ttf, otf, woff, and woff2 formats. Use ttf or otf as priority, as some libraries do not support woff or variable fonts. Takumi supports COLRv0 fonts. Defaults to built-in DingTalkJinBuTi-Regular and TwemojiCOLRv0.
-    logInfo: Debug Info
     dir: Font Directory
     defaultFamily: Default Font Family
-    satoriDefaultEmojiType: Default emoji type used by Satori
+    defaultEmojiType: Default Emoji Type
+    takumiUseFontEmoji: takumi uses font Emoji
+    CDNNode: Resource CDN Node (Emoji Images)

@@ -1,7 +1,9 @@
 _config:
+  logInfo: 调试信息
   font:
     _prompt: 字体支持 ttf|otf|woff|woff2 四种格式，请尽量使用前两种，部分图形库不支持woff。部分图形库不支持可变字体。takumi 支持使用 COLRv0 字体。没加载任何字体时使用内置的DingTalkJinBuTi-Regular与TwemojiCOLRv0
-    logInfo: 调试信息
     dir: 字体目录
     defaultFamily: 默认字体族
-    satoriDefaultEmojiType: Satori 使用的默认 Emoji 类型
+    defaultEmojiType: 默认 Emoji 类型
+    takumiUseFontEmoji: takumi 使用字体Emoji
+    CDNNode: 资源CDN节点(Emoji图片)

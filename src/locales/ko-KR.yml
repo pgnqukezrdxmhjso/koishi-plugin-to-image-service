@@ -1,7 +1,9 @@
 _config:
+  logInfo: 디버깅 정보
   font:
     _prompt: ttf, otf, woff, woff2 형식을 지원합니다. 일부 라이브러리에서 woff나 가변 글꼴을 지원하지 않으므로 가급적 ttf 또는 otf를 사용하세요. Takumi는 COLRv0 형식을 지원합니다. 폰트가 없을 경우 내장된 DingTalkJinBuTi-Regular와 TwemojiCOLRv0를 사용합니다.
-    logInfo: 디버깅 정보
     dir: 글꼴 디렉토리
     defaultFamily: 기본 글꼴 패밀리
-    satoriDefaultEmojiType: Satori에서 사용하는 기본 이모지 유형
+    defaultEmojiType: 기본 이모지 유형
+    takumiUseFontEmoji: takumi 글꼴 이모지 사용
+    CDNNode: 리소스 CDN 노드 (이모지 이미지)

@@ -1,4 +1,4 @@
-import { loadService } from "./testBase";
+import { loadService } from "../testBase";
 import fs from "node:fs/promises";
 
 (async () => {

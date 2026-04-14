@@ -8,3 +8,5 @@ FontInfo:
 copy:
   copyTitle: Cliquer pour copier
   success: Copié avec succès !
+CDNNodeSpeed:
+  test: Test de vitesse CDN

@@ -245,7 +245,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
   }
 
   private fontChangeLog(fonts: FontManagement.Font[], msg: string) {
-    if (this.config?.font?.logInfo) {
+    if (this.config?.logInfo) {
       this.ctx.logger.info(
         `${msg} font: ${this.getFamilyNames(fonts).join(", ")}`,
       );
@@ -319,7 +319,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     allowFallbackEmoji,
     fallbackSort = "familySize",
     fallbackSizeMax = 1,
-    needDefaultDefaultFonts = true,
+    needDefaultFonts = true,
     allowOnlyEmoji,
     needDefaultEmojiFont,
   }: {
@@ -329,10 +329,10 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
     preferredFamilyNames?: string[];
     applyConfig?: boolean;
     needFallback?: boolean;
-    allowFallbackEmoji?: boolean;
+    allowFallbackEmoji?: true;
     fallbackSort?: "familySize";
     fallbackSizeMax?: number;
-    needDefaultDefaultFonts?: boolean;
+    needDefaultFonts?: boolean;
     allowOnlyEmoji?: true;
     needDefaultEmojiFont?: true;
   }) {
@@ -404,7 +404,7 @@ export class FontManagement extends BeanHelper.BeanType<Config> {
       pickFamilyFont(familyNames);
     }
 
-    if (needDefaultDefaultFonts && resFonts.length < 1) {
+    if (needDefaultFonts && resFonts.length < 1) {
       return res(this.defaultFonts);
     }
     return res();
