@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: 預設 Emoji 類型
     takumiUseFontEmoji: takumi 使用字型 Emoji
     CDNNode: 資源 CDN 節點 (Emoji 圖片)
+  resource:
+    _prompt: 記憶體快取，用於儲存來自連結的圖片資源。可避免重複下載資源，加快渲染速度；小池：小於等於 smallPoolMaxEntrySize 的資源，透過總數量來限制記憶體佔用。大池：大於 smallPoolMaxEntrySize 的資源
+    smallPoolMaxItem: 小池-最大資源數
+    smallPoolMaxEntrySize: 小池-單一資源最大容量(MB)
+    smallPoolTtl: 小池-過期時間(分鐘)
+    largePoolMaxSize: 大池-最大容量(MB)
+    largePoolMaxEntrySize: 大池-單一資源最大容量(MB)
+    largePoolTtl: 大池-過期時間(分鐘)

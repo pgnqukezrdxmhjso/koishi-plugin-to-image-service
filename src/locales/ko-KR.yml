@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: 기본 이모지 유형
     takumiUseFontEmoji: takumi 글꼴 이모지 사용
     CDNNode: 리소스 CDN 노드 (이모지 이미지)
+  resource:
+    _prompt: "링크의 이미지 리소스를 저장하기 위한 메모리 캐시. 중복 다운로드를 방지하고 렌더링 속도를 향상시킵니다. 소형 풀: smallPoolMaxEntrySize 이하의 리소스, 총 개수로 메모리 사용량을 제한. 대형 풀: smallPoolMaxEntrySize 초과 리소스."
+    smallPoolMaxItem: 소형 풀 - 최대 리소스 수
+    smallPoolMaxEntrySize: 소형 풀 - 리소스당 최대 용량 (MB)
+    smallPoolTtl: 소형 풀 - 만료 시간 (분)
+    largePoolMaxSize: 대형 풀 - 최대 총 용량 (MB)
+    largePoolMaxEntrySize: 대형 풀 - 리소스당 최대 용량 (MB)
+    largePoolTtl: 대형 풀 - 만료 시간 (분)

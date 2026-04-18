@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: Default Emoji Type
     takumiUseFontEmoji: takumi uses font Emoji
     CDNNode: Resource CDN Node (Emoji Images)
+  resource:
+    _prompt: "In-memory cache for storing image resources from links. Prevents redundant downloads and speeds up rendering. Small pool: resources ≤ smallPoolMaxEntrySize, limited by total item count to control memory usage. Large pool: resources > smallPoolMaxEntrySize."
+    smallPoolMaxItem: Small pool - max item count
+    smallPoolMaxEntrySize: Small pool - max size per resource (MB)
+    smallPoolTtl: Small pool - TTL (minutes)
+    largePoolMaxSize: Large pool - max total size (MB)
+    largePoolMaxEntrySize: Large pool - max size per resource (MB)
+    largePoolTtl: Large pool - TTL (minutes)

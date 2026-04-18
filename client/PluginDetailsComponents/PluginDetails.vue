@@ -5,8 +5,9 @@
         <ruby>toImage<rt>Service</rt></ruby>
       </div>
     </template>
-    <el-space direction="vertical">
+    <el-space direction="vertical" style="width: 109px">
       <FontInfo />
+      <ResourceCache />
       <CDNNodeSpeed />
     </el-space>
   </DragContainer>
@@ -16,6 +17,7 @@
 import DragContainer from "koishi-plugin-rzgtboeyndxsklmq-commons/vue/components/DragContainer.vue";
 import FontInfo from "./FontInfo.vue";
 import CDNNodeSpeed from "./CDNNodeSpeed.vue";
+import ResourceCache from "./ResourceCache.vue";
 </script>
 
 <style module lang="scss">

@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: Тип Emoji по умолчанию
     takumiUseFontEmoji: takumi использует шрифтовые Emoji
     CDNNode: CDN-узел ресурсов (изображения Emoji)
+  resource:
+    _prompt: "Кэш в памяти для хранения изображений, загружаемых по ссылкам. Предотвращает повторную загрузку и ускоряет рендеринг. Малый пул: ресурсы ≤ smallPoolMaxEntrySize, ограничение по общему количеству для контроля памяти. Большой пул: ресурсы > smallPoolMaxEntrySize."
+    smallPoolMaxItem: Малый пул - макс. количество ресурсов
+    smallPoolMaxEntrySize: Малый пул - макс. размер одного ресурса (МБ)
+    smallPoolTtl: Малый пул - время жизни (минут)
+    largePoolMaxSize: Большой пул - макс. общий размер (МБ)
+    largePoolMaxEntrySize: Большой пул - макс. размер одного ресурса (МБ)
+    largePoolTtl: Большой пул - время жизни (минут)

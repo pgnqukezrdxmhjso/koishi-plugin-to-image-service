@@ -8,9 +8,17 @@ import { FontManagement } from "./fontManagement";
 import { TakumiRenderer } from "./toImage";
 import { toReactElement } from "./toReactElement";
 import { CDNNodeSpeed, NodeSpeed } from "./util";
+import { ResourceCache } from "./cache";
 
 declare module "@koishijs/plugin-console" {
   interface Events {
+    "to-image-service-resource-cache-pool-info": () => ReturnType<
+      ResourceCache["poolInfo"]
+    >;
+    "to-image-service-resource-cache-clear": (arg: {
+      small: boolean;
+      large: boolean;
+    }) => void;
     "to-image-service-cdn-node-speed": () => Promise<NodeSpeed[]>;
     "to-image-service-get-all-family": () => FontManagement.Family[];
     "to-image-service-font-preview": (
@@ -22,9 +30,18 @@ declare module "@koishijs/plugin-console" {
 export default class ConsoleEx extends BeanHelper.BeanType<Config> {
   private fontManagement = this.beanHelper.instance(FontManagement);
   private takumiRenderer = this.beanHelper.instance(TakumiRenderer);
+  private resourceCache = this.beanHelper.instance(ResourceCache);
 
   start() {
     this.ctx.inject(["console"], (ctx) => {
+      ctx.console.addListener("to-image-service-resource-cache-pool-info", () =>
+        this.resourceCache.poolInfo(),
+      );
+      ctx.console.addListener(
+        "to-image-service-resource-cache-clear",
+        ({ small, large }) => this.resourceCache.clear({ small, large }),
+      );
+
       ctx.console.addListener("to-image-service-cdn-node-speed", () =>
         CDNNodeSpeed(this.ctx.http),
       );

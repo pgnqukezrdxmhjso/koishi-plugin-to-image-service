@@ -10,3 +10,8 @@ copy:
   success: 复制成功！
 CDNNodeSpeed:
   test: CDN测速
+ResourceCache:
+  smallPool: 小池
+  largePool: 大池
+  item: 资源数量
+  size: 容量

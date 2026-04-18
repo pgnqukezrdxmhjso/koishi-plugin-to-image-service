@@ -6,7 +6,7 @@ import {
 } from "koishi-plugin-rzgtboeyndxsklmq-commons";
 
 import type { ReactElement } from "react";
-import TakumiType from "@takumi-rs/core";
+import type TakumiType from "@takumi-rs/core";
 import type { Node as TakumiNode } from "@takumi-rs/helpers";
 import { extractResourceUrls } from "@takumi-rs/helpers";
 import { extractEmojis } from "@takumi-rs/helpers/emoji";
@@ -22,6 +22,7 @@ import { JSDOM } from "jsdom";
 import type { Config } from "./config";
 import { FontManagement } from "./fontManagement";
 import { importPackage, installPackage, replaceCDN } from "./util";
+import { ResourceCache } from "./cache";
 
 export namespace SkiaCanvasRenderer {
   export type SkiaCanvasOptions =
@@ -234,6 +235,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
   private renderer: TakumiType.Renderer;
 
   private fontManagement = this.beanHelper.instance(FontManagement);
+  private resourceCache = this.beanHelper.instance(ResourceCache);
 
   async start() {
     await installPackage(this.ctx, this.TakumiPackageName);
@@ -295,10 +297,7 @@ export class TakumiRenderer extends BeanHelper.BeanType<Config> {
     await Promise.all(
       resourceUrls.map(async (src) => {
         try {
-          const res = await this.ctx.http.get(src, {
-            headers: { Referer: new URL(src).origin },
-            responseType: "arraybuffer",
-          });
+          const res = await this.resourceCache.fetch(src);
           fetchedResources.push({ src, data: res });
         } catch (e) {
           if (this.config?.logInfo) {

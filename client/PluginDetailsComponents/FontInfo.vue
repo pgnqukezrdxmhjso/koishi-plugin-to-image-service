@@ -115,8 +115,9 @@ import { ElMessage } from "element-plus";
 import { DocumentCopy } from "@element-plus/icons-vue";
 
 import { send, receive } from "@koishijs/client";
-import type { FontManagement } from "../../src";
 import { Events } from "@koishijs/plugin-console";
+import type { FontManagement } from "../../src";
+import { propelSizeUnit } from "../util";
 
 const _t = inject<ComposerTranslation>("t");
 const t = (p: string, ...a: any[]) => _t.apply(_t, ["FontInfo." + p, a]);
@@ -162,13 +163,6 @@ receive(
     getAllFamily();
   }, 500),
 );
-
-const propelSizeUnit = (size = 0, unit = 0) => {
-  if (size <= 1024 || unit >= 5) {
-    return +size.toFixed(2) + ["", "K", "M", "G", "T", "P"][unit] + "B";
-  }
-  return propelSizeUnit(size / 1024, unit + 1);
-};
 
 const { copy, copied, isSupported } = useClipboard({
   legacy: true,

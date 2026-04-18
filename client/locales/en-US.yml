@@ -10,3 +10,8 @@ copy:
   success: Copied successfully!
 CDNNodeSpeed:
   test: CDN Speed Test
+ResourceCache:
+  smallPool: Small pool
+  largePool: Large pool
+  item: Item count
+  size: Size

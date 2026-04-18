@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -50,23 +50,25 @@
     }
   },
   "dependencies": {
-    "@takumi-rs/helpers": "^1.0.9",
+    "@takumi-rs/helpers": "^1.0.14",
     "canvg": "^4.0.3",
     "fontkit": "^2.0.4",
-    "html-react-parser": "^5.2.15",
-    "jsdom": "26.1.0",
+    "html-react-parser": "^6.0.1",
+    "jsdom": "^29.0.2",
     "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.2.0",
-    "react": "^19.2.4",
+    "lru-cache": "^11.3.5",
+    "react": "^19.2.5",
     "satori": "^0.26.0",
     "sucrase": "^3.35.1"
   },
   "devDependencies": {
     "@koishijs/client": "^5.30.11",
-    "@napi-rs/canvas": "^0.1.89",
+    "@napi-rs/canvas": "^0.1.99",
     "@resvg/resvg-js": "^2.6.2",
-    "@takumi-rs/core": "^1.0.9",
-    "@types/fontkit": "^2.0.8",
-    "@types/react": "^19.2.10",
+    "@takumi-rs/core": "^1.0.14",
+    "@types/fontkit": "^2.0.9",
+    "@types/jsdom": "^28.0.1",
+    "@types/react": "^19.2.14",
     "koishi-plugin-w-node": "^2.0.0",
     "sharp": "^0.34.5"
   },

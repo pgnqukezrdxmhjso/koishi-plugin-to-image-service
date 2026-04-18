@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: Type d'Emoji par défaut
     takumiUseFontEmoji: takumi utilise les polices Emoji
     CDNNode: Nœud CDN de ressources (Images Emoji)
+  resource:
+    _prompt: "Cache mémoire pour le stockage des ressources images provenant de liens. Évite les téléchargements redondants et accélère le rendu. Petit groupe : ressources ≤ smallPoolMaxEntrySize, limité par le nombre total d'éléments pour contrôler l'occupation mémoire. Grand groupe : ressources > smallPoolMaxEntrySize."
+    smallPoolMaxItem: Petit groupe - nombre maximal d'éléments
+    smallPoolMaxEntrySize: Petit groupe - taille max par ressource (Mo)
+    smallPoolTtl: Petit groupe - durée de vie (minutes)
+    largePoolMaxSize: Grand groupe - taille totale max (Mo)
+    largePoolMaxEntrySize: Grand groupe - taille max par ressource (Mo)
+    largePoolTtl: Grand groupe - durée de vie (minutes)

@@ -10,3 +10,8 @@ copy:
   success: Копирование успешно!
 CDNNodeSpeed:
   test: Тест скорости CDN
+ResourceCache:
+  smallPool: Малый пул
+  largePool: Большой пул
+  item: Количество ресурсов
+  size: Размер

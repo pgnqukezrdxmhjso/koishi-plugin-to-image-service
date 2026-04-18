@@ -7,3 +7,11 @@ _config:
     defaultEmojiType: デフォルトEmojiタイプ
     takumiUseFontEmoji: takumi はフォントEmojiを使用する
     CDNNode: リソースCDNノード (Emoji画像)
+  resource:
+    _prompt: リンク先の画像リソースを格納するためのメモリキャッシュ。重複ダウンロードを防ぎ、レンダリングを高速化します。小プール：smallPoolMaxEntrySize 以下のリソース、総数でメモリ使用量を制限。大プール：smallPoolMaxEntrySize より大きいリソース。
+    smallPoolMaxItem: 小プール - 最大リソース数
+    smallPoolMaxEntrySize: 小プール - リソースあたり最大容量 (MB)
+    smallPoolTtl: 小プール - 有効期限 (分)
+    largePoolMaxSize: 大プール - 最大総容量 (MB)
+    largePoolMaxEntrySize: 大プール - リソースあたり最大容量 (MB)
+    largePoolTtl: 大プール - 有効期限 (分)

@@ -7,6 +7,7 @@ import type { SatoriOptions } from "satori";
 import { FontManagement } from "./fontManagement";
 import type { Config } from "./config";
 import { replaceCDN } from "./util";
+import { ResourceCache } from "./cache";
 
 export namespace SatoriRenderer {
   export type EmojiType = keyof typeof SatoriRenderer.emojiApis;
@@ -55,7 +56,7 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
 
   private satori: typeof Satori;
   private fontManagement = this.beanHelper.instance(FontManagement);
-  assetCache = new Map<string, any>();
+  private resourceCache = this.beanHelper.instance(ResourceCache);
 
   constructor(beanHelper: BeanHelper<Config>) {
     super(beanHelper);
@@ -88,21 +89,12 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
       "_flat.svg",
   };
 
-  private loadEmoji(code: string, type: SatoriRenderer.EmojiType) {
+  private emojiUrl(code: string, type: SatoriRenderer.EmojiType) {
     const api = SatoriRenderer.emojiApis[type];
-    let src =
+    let url =
       typeof api === "function" ? api(code) : `${api}${code.toUpperCase()}.svg`;
-    src = replaceCDN(src, this.config?.font?.CDNNode);
-    try {
-      return this.ctx.http.get(src, {
-        headers: { Referer: new URL(src).origin },
-        responseType: "arraybuffer",
-      });
-    } catch (e) {
-      if (this.config?.logInfo) {
-        this.ctx.logger.error(src, e);
-      }
-    }
+    url = replaceCDN(url, this.config?.font?.CDNNode);
+    return url;
   }
 
   private getIconCode(char: string) {
@@ -124,29 +116,21 @@ export class SatoriRenderer extends BeanHelper.BeanType<Config> {
     return r.join("-");
   }
 
+  private static emptySvg = new ArrayBuffer();
+
   loadDynamicAsset(emoji: SatoriRenderer.EmojiType) {
     return async (code: string, text: string) => {
       if (code !== "emoji") {
         return [];
       }
 
-      const key = `${emoji}-${code}-${text}`;
-      const cache = this.assetCache.get(key);
-      if (cache) return cache;
+      const url = this.emojiUrl(this.getIconCode(text), emoji);
 
-      let asset: string;
-      try {
-        asset =
-          `data:image/svg+xml;base64,` +
-          Buffer.from(
-            await this.loadEmoji(this.getIconCode(text), emoji),
-          ).toString("base64");
-      } catch (e) {
-        asset = `data:image/svg+xml;base64,` + btoa("does not exist");
-      }
+      const svg = await this.resourceCache.fetch(url, {
+        defaultValue: SatoriRenderer.emptySvg,
+      });
 
-      this.assetCache.set(key, asset || []);
-      return asset;
+      return `data:image/svg+xml;base64,` + Buffer.from(svg).toString("base64");
     };
   }
 
