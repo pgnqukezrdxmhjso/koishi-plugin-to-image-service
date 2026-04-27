@@ -87,7 +87,7 @@ export default class ConsoleEx extends BeanHelper.BeanType<Config> {
   ) {
     const imgMap: Record<string, Uint8Array> = {};
     for (const preview of previewList) {
-      const html = `<div style="font-size: ${fontSize}px">${preview.content}</div>`;
+      const html = `<div style="background:#ffffff;padding: 3px;font-size: ${fontSize}px">${preview.content}</div>`;
       imgMap[preview.familyName] = await this.takumiRenderer.renderOneFont({
         reactElement: toReactElement.htmlToReactElement(html),
         familyName: preview.familyName,

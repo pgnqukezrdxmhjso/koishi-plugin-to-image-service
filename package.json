@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-to-image-service",
   "description": "Generate images using a non-puppeteer solution",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -50,11 +50,11 @@
     }
   },
   "dependencies": {
-    "@takumi-rs/helpers": "^1.1.1",
+    "@takumi-rs/helpers": "^1.1.2",
     "canvg": "^4.0.3",
     "fontkit": "^2.0.4",
     "html-react-parser": "^6.0.1",
-    "jsdom": "^29.0.2",
+    "jsdom": "26.1.0",
     "koishi-plugin-rzgtboeyndxsklmq-commons": "^1.2.0",
     "lru-cache": "^11.3.5",
     "react": "^19.2.5",
@@ -65,7 +65,7 @@
     "@koishijs/client": "^5.30.11",
     "@napi-rs/canvas": "^0.1.99",
     "@resvg/resvg-js": "^2.6.2",
-    "@takumi-rs/core": "^1.1.1",
+    "@takumi-rs/core": "^1.1.2",
     "@types/fontkit": "^2.0.9",
     "@types/jsdom": "^28.0.1",
     "@types/react": "^19.2.14",
