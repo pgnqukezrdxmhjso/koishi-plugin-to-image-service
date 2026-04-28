@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import { Context, Service } from "koishi";
 // noinspection ES6UnusedImports
 import {} from "koishi-plugin-w-node";
@@ -80,9 +77,9 @@ class ToImageService extends Service {
   }
 }
 
-const readme = fs.readFileSync(path.join(__dirname, "../readme.md"), "utf8");
 namespace ToImageService {
-  export const usage = readme;
+  export const usage =
+    '<a href="https://github.com/pgnqukezrdxmhjso/koishi-plugin-to-image-service/blob/master/readme.md" target="_blank">readme.md</a>';
 
   export const inject = ["node"];
 
